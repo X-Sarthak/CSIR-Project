@@ -1,0 +1,51 @@
+.no-border-radius {
+  border-radius: 0 !important;
+}
+
+.ant-picker-calendar .ant-picker-panel-container,
+.ant-picker-calendar .ant-picker-panel {
+  border-radius: 0 !important;
+}
+
+.separator {
+  margin: 4px 0; /* Adjust the margin as needed */
+  border-bottom: 2px solid rgb(0, 165, 247); /* Blue line separator */
+}
+
+.meeting-details {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px; /* Adjust the font size as needed */
+}
+
+.meeting-name {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-size: 10px; /* Adjust the font size as needed */
+}
+
+.meeting-time {
+  font-size: 10px; /* Adjust the font size as needed */
+  color: #555; /* Optional: Change the color to make it distinct */
+}
+
+.meeting-venue {
+  font-size: 10px; /* Adjust the font size as needed */
+  color: #555; /* Optional: Change the color to make it distinct */
+}
+
+.meeting-name .ant-badge {
+  margin-left: 4px; /* Adjust the margin as needed */
+}
+
+.events {
+  list-style: none;
+  padding: 0;
+}
+
+.events li {
+  margin-bottom: 4px; /* Adjust the margin as needed */
+}
+
+
