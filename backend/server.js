@@ -1626,7 +1626,7 @@ app.put("/admin/user/status/enable/:user_id", (req, res) => {
 });
 
 
-//Filter users by email address
+//Filter users by email, name , division , designation
 app.post("/admin/users/search", (req, res) => {
   // Extract the token from session
   const token = req.session.token;
@@ -1645,29 +1645,49 @@ app.post("/admin/users/search", (req, res) => {
     }
 
     const adminUsername = decoded.admin_username;
-    const userEmail = req.body.email;
+    const { text, category } = req.body;
 
-    // Validate the email
-    if (!userEmail) {
+    // Validate the text
+    if (!text) {
       return res.status(400).json({ error: "Email is required" });
     }
 
-    // Query database to get user details based on email for the specified admin
-    connection.query(
-      "SELECT user_id, user_name, user_division, user_designation, user_email, user_status FROM Users WHERE admin_username = ? AND user_email LIKE ?",
-      [adminUsername, `%${userEmail}%`],
-      (error, users) => {
-        if (error) {
-          console.error("Error fetching users:", error);
-          return res.status(500).json({ error: "Internal server error" });
-        }
+    // Build the query based on the selected category
+    let query = "SELECT user_id, user_name, user_division, user_designation, user_email, user_status FROM Users WHERE admin_username = ? AND ";
+    let queryParams = [adminUsername];
 
-        // Respond with user details
-        res.json(users);
+    switch (category) {
+      case "name":
+        query += "user_name LIKE ?";
+        queryParams.push(`%${text}%`);
+        break;
+      case "division":
+        query += "user_division LIKE ?";
+        queryParams.push(`%${text}%`);
+        break;
+      case "designation":
+        query += "user_designation LIKE ?";
+        queryParams.push(`%${text}%`);
+        break;
+      default:
+        query += "user_email LIKE ?";
+        queryParams.push(`%${text}%`);
+        break;
+    }
+
+    // Query the database with the constructed query and parameters
+    connection.query(query, queryParams, (error, users) => {
+      if (error) {
+        console.error("Error fetching users:", error);
+        return res.status(500).json({ error: "Internal server error" });
       }
-    );
+
+      // Respond with user details
+      res.json(users);
+    });
   });
 });
+
 
 
 //Booking schedule update

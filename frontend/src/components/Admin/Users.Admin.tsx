@@ -21,7 +21,8 @@ function Users() {
   const [users, setUsers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
-  const [searchEmail, setSearchEmail] = useState<string>(""); // State for search input
+  const [searchText, setSearchText] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all"); // New state for the select dropdown
   const navigator = useNavigate();
 
   useEffect(() => {
@@ -112,7 +113,6 @@ function Users() {
         );
         if (response.status === 200) {
           fetchUsersDetails();
-          toast.warn("Meeting disabled successfully");
         }
       } else {
         response = await axios.put(
@@ -122,7 +122,6 @@ function Users() {
         );
         if (response.status === 200) {
           fetchUsersDetails();
-          toast.success("Meeting enabled successfully");
         }
       }
     } catch (error) {
@@ -158,13 +157,27 @@ function Users() {
   const handleSearch = async () => {
     try {
       const response = await axios.post(`/admin/users/search`, {
-        email: searchEmail,
+        category: selectedCategory, // Send the selected category
+        text: searchText,
       });
       setUsers(response.data); // Update users with search results
     } catch (error) {
+      toast.info("Select the Category");
       console.error("Error searching users:", error);
     }
   };
+
+  const handleResetClick = () => {
+    setUsers([]); // Clear the users data
+    setSelectedCategory(""); // Reset the category selection to default
+    setSearchText(""); // Clear the search text input
+    setItemsPerPage(10); // Reset items per page to the default value
+    fetchUsersDetails(); // Refetch all users to reset the table
+  };
+  const handlePrintClick = () => {
+
+  };
+  //work non this function
 
   return (
     <>
@@ -192,28 +205,54 @@ function Users() {
                       </option>
                     ))}
                   </select>
-                  <h1 className="text-sm font-serif ml-4 mr-6">
+                  <h1 className="text-sm font-serif ml-4 mr-2">
                     Username: {adminDetails.admin_username}
                   </h1>
+                     {/* Select Dropdown for Category */}
+                     <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="border border-gray-300 px-2 py-1 rounded-md ml-2"
+                  >
+                      <option value=""> Not Selected</option>
+                    <option value="email"> Email</option>
+                    <option value="name">Name</option>
+                    <option value="division">Division</option>
+                    <option value="designation">Designation</option>
+                  </select>
+
+                  {/* Search Email Input */}
                   <input
                     type="text"
-                    value={searchEmail}
-                    onChange={(e) => setSearchEmail(e.target.value)}
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
                     className="border border-gray-300 px-2 py-1 rounded-md ml-2"
-                    placeholder="Search Email..."
+                    placeholder="Search"
                   />
                   <button
                     onClick={handleSearch}
-                    className="bg-green-500 hover:bg-green-600 text-white font-serif px-4 py-1 rounded-md ml-2"
+                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 border border-black rounded-md ml-2"
                   >
                     Search
                   </button>
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-serif px-4 py-1 rounded-md ml-2"
+                    className="px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600 ml-2"
                     onClick={handleAddUsersClick}
                   >
                     Add Users
                   </button>
+                  <button
+                      onClick={handleResetClick} // Update to your search handler
+                      className="ml-2 px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={handlePrintClick} // Update to your search handler
+                      className="ml-2 px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                    >
+                      Print
+                    </button>
                 </div>
               )}
 
