@@ -45,6 +45,7 @@ function MeetingRoom() {
         }
       } catch (error) {
         console.error("Error validating session:", error);
+        console.log("heelo");
         navigator("/");
       }
     };
@@ -119,7 +120,6 @@ function MeetingRoom() {
           }
         );
         if (response.status === 200) {
-          toast.warn("Meeting disabled successfully");
           fetchMeetingDetails();
         }
       } else {
@@ -131,7 +131,6 @@ function MeetingRoom() {
           }
         );
         if (response.status === 200) {
-          toast.success("Meeting enabled successfully");
           fetchMeetingDetails();
         }
       }
@@ -284,7 +283,7 @@ function MeetingRoom() {
                 >
                   {totalPages === 0
                     ? "No Pages"
-                    : `${currentPage} | ${totalPages}`}
+                    : `${currentPage} / ${totalPages}`}
                 </span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}

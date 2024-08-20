@@ -169,7 +169,7 @@ function AdminDashboard() {
                     >
                       {totalPages === 0
                         ? "No Pages"
-                        : `${currentPage} | ${totalPages}`}
+                        : `${currentPage} / ${totalPages}`}
                     </span>
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}

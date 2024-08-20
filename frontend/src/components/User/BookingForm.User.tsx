@@ -61,8 +61,8 @@ function BookingForm({ meeting, setShowBookingForm }: BookingFormProps) {
       const currentMonth = currentDate.getMonth();
       const currentDay = currentDate.getDate();
       const nextMonth =
-        currentMonth + 2 > 11 ? (currentMonth + 2) % 12 : currentMonth + 2; // Handle December and wrap around
-      const nextYear = currentMonth + 2 > 11 ? currentYear + 1 : currentYear;
+        currentMonth + 2 > 11 ? (currentMonth + 3) % 12 : currentMonth + 3; // Handle December and wrap around
+      const nextYear = currentMonth + 3 > 11 ? currentYear + 1 : currentYear;
       const endDate = new Date(nextYear, nextMonth, currentDay); // Set end date to the same date two months later
 
       const availableDatesInRange: string[] = [];

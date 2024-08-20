@@ -832,7 +832,6 @@ app.put("/admin/reset/password", (req, res) => {
 
 // Endpoint to insert meeting data for the logged-in admin
 app.post("/admin/meetings/create", (req, res) => {
-  // Extract the token from session
   const token = req.session.token;
 
   if (!token) {
@@ -840,7 +839,7 @@ app.post("/admin/meetings/create", (req, res) => {
   }
 
   try {
-    const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
+    const secretKey = process.env.SECRET_KEY;
     const decoded = jwt.verify(token, secretKey);
     const adminUsername = decoded.admin_username;
 
@@ -849,6 +848,8 @@ app.post("/admin/meetings/create", (req, res) => {
       authority_name,
       meeting_username,
       meeting_password,
+      start_time,
+      end_time,
       meeting_status,
     } = req.body;
 
@@ -858,6 +859,8 @@ app.post("/admin/meetings/create", (req, res) => {
       !authority_name ||
       !meeting_username ||
       !meeting_password ||
+      !start_time ||
+      !end_time ||
       meeting_status === undefined
     ) {
       return res.status(400).json({ error: "All fields are required" });
@@ -881,18 +884,25 @@ app.post("/admin/meetings/create", (req, res) => {
           }
 
           if (results.length > 0) {
-            return res.status(409).json({ error: "Meeting username already exists" });
+            return res
+              .status(409)
+              .json({ error: "Meeting username already exists" });
           }
 
-          // Insert meeting data into the database with hashed password and decoded admin username
+          // Insert meeting data into the database with hashed password, decoded admin username, and predefined meeting days
+          const meeting_days = "Monday, Tuesday, Wednesday, Thursday, Friday";
+
           connection.query(
-            "INSERT INTO Meetings (room_name, authority_name, meeting_username, meeting_password, meeting_status, admin_username) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO Meetings (room_name, authority_name, meeting_username, meeting_password, meeting_status, meeting_days, start_time, end_time, admin_username) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             [
               room_name,
               authority_name,
               meeting_username,
               hashedPassword,
               meeting_status,
+              meeting_days,
+              start_time,
+              end_time,
               adminUsername,
             ],
             (error, results) => {
@@ -1034,8 +1044,6 @@ app.put("/admin/meetings/status/disable/:meetingId", (req, res) => {
     res.status(401).json({ error: "Invalid token" });
   }
 });
-
-
 
 // Enable
 app.put("/admin/meetings/status/enable/:meetingId", (req, res) => {

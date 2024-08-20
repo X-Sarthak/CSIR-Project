@@ -14,6 +14,8 @@ const MeetingCreateForm: React.FC<MeetingCreateFormProps> = ({ onClose }) => {
     authorityName: "",
     username: "",
     password: "",
+    startTime: "",
+    endTime: "",
   });
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -36,8 +38,8 @@ const MeetingCreateForm: React.FC<MeetingCreateFormProps> = ({ onClose }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent default form submission behavior
-     
-    // Check if meeting username contains spaces
+
+    // Check if meeting username or password contains spaces
     if (formData.username.includes(" ")) {
       toast.error("Spaces are not allowed in the meeting username.");
       return;
@@ -46,7 +48,7 @@ const MeetingCreateForm: React.FC<MeetingCreateFormProps> = ({ onClose }) => {
       toast.error("Spaces are not allowed in the meeting password.");
       return;
     }
-  
+
     try {
       // Make a POST request to create a meeting
       await axios.post("/admin/meetings/create", {
@@ -54,6 +56,8 @@ const MeetingCreateForm: React.FC<MeetingCreateFormProps> = ({ onClose }) => {
         authority_name: formData.authorityName,
         meeting_username: formData.username,
         meeting_password: formData.password,
+        start_time: formData.startTime,
+        end_time: formData.endTime,
         meeting_status: true,
       });
       onClose();
@@ -77,7 +81,6 @@ const MeetingCreateForm: React.FC<MeetingCreateFormProps> = ({ onClose }) => {
       console.error("Error creating meeting:", error);
     }
   };
-  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -155,6 +158,36 @@ const MeetingCreateForm: React.FC<MeetingCreateFormProps> = ({ onClose }) => {
                 required
               />
             </div>
+            <div className="flex justify-between">
+              <div className="flex-1 mr-2">
+                <label htmlFor="startTime" className="block font-semibold mb-1">
+                  Start Time:
+                </label>
+                <input
+                  type="time"
+                  id="startTime"
+                  name="startTime"
+                  value={formData.startTime}
+                  onChange={handleChange}
+                  className="rounded-md border border-black p-2 w-full focus:outline-none focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div className="flex-1 ml-2">
+                <label htmlFor="endTime" className="block font-semibold mb-1">
+                  End Time:
+                </label>
+                <input
+                  type="time"
+                  id="endTime"
+                  name="endTime"
+                  value={formData.endTime}
+                  onChange={handleChange}
+                  className="rounded-md border border-black p-2 w-full focus:outline-none focus:border-blue-500"
+                  required
+                />
+              </div>
+            </div>
             <div className="flex justify-end">
               <button
                 type="button"
@@ -172,7 +205,7 @@ const MeetingCreateForm: React.FC<MeetingCreateFormProps> = ({ onClose }) => {
             </div>
           </div>
         </form>
-        <ToastContainer/>
+        <ToastContainer />
       </div>
     </div>
   );

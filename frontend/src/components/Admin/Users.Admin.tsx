@@ -7,6 +7,8 @@ import UsersCreateForm from "./UsersCreate.Admin";
 import EditUserForm from "./EditFormUser.Admin";
 import { FaLock } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
+import * as XLSX from "xlsx"; // Import XLSX library
+
 
 axios.defaults.withCredentials = true;
 
@@ -20,7 +22,7 @@ function Users() {
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [searchText, setSearchText] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all"); // New state for the select dropdown
   const navigator = useNavigate();
@@ -174,11 +176,44 @@ function Users() {
     setItemsPerPage(10); // Reset items per page to the default value
     fetchUsersDetails(); // Refetch all users to reset the table
   };
-  const handlePrintClick = () => {
 
-  };
-  //work non this function
+const handlePrintClick = () => {
+  if (users.length === 0) {
+    toast.info("No users data available to export.");
+    return;
+  }
 
+  // Define custom headers
+  const headers = ["Full Name", "Department", "Job Title", "Email Address"];
+
+  // Prepare data with custom headers
+  const usersWithCustomHeaders = users.map(user => ({
+    "Full Name": user.user_name,
+    "Department": user.user_division,
+    "Job Title": user.user_designation,
+    "Email Address": user.user_email,
+  }));
+
+  // Create worksheet with custom headers
+  const ws = XLSX.utils.json_to_sheet(usersWithCustomHeaders, { header: headers });
+
+  // Set column widths (optional, but can be adjusted as needed)
+  ws['!cols'] = [
+    { width: 20 }, // Full Name
+    { width: 25 }, // Department
+    { width: 30 }, // Job Title
+    { width: 35 }  // Email Address
+  ];
+
+  // Create workbook and append worksheet
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Users");
+
+  // Generate Excel file and trigger download
+  XLSX.writeFile(wb,"Users-CSIR Data.xlsx");
+};
+
+  
   return (
     <>
       {validSession && (
@@ -360,7 +395,7 @@ function Users() {
                 >
                   {totalPages === 0
                     ? "No Pages"
-                    : `${currentPage} | ${totalPages}`}
+                    : `${currentPage} / ${totalPages}`}
                 </span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
