@@ -22,13 +22,12 @@ function MeetingDashboard() {
   const [endTime, setEndTime] = useState<string>("");
   const [previousStartTime] = useState<string>("");
   const [previousEndTime] = useState<string>("");
-  const [buttonText, setButtonText] = useState("Add Days and Time");
   const [buttonLoading, setButtonLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [refreshPage, setRefreshPage] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showRegistrationForm, setShowRegistrationForm] = useState(false); // Add state for showing the registration form
-  const [selectedMeeting, setSelectedMeeting] = useState(null); // State to store the selected meeting
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [selectedMeeting, setSelectedMeeting] = useState(null);
 
   const navigator = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
@@ -94,21 +93,20 @@ function MeetingDashboard() {
         setShowForm(false);
       }
     };
-  
+
     document.addEventListener("mousedown", handleClickOutside);
-  
+
     if (showForm) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
     }
-  
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.body.style.overflow = "auto";
     };
   }, [showForm]);
-  
 
   const fetchMeetingDetails = async () => {
     try {
@@ -124,9 +122,7 @@ function MeetingDashboard() {
 
   const setSelectedDaysFromBackend = async () => {
     try {
-      const response = await axios.get(
-        "/meeting/selectedDays"
-      );
+      const response = await axios.get("/meeting/selectedDays");
       const { selectedDays } = response.data;
 
       if (selectedDays.length > 0) {
@@ -134,7 +130,6 @@ function MeetingDashboard() {
         setSelectedDays(daysArray);
         setStartTime(selectedDays[0].start_time);
         setEndTime(selectedDays[0].end_time);
-        setButtonText("Update Days and Time");
       } else {
         setSelectedDays([]);
       }
@@ -151,7 +146,7 @@ function MeetingDashboard() {
     );
   };
 
-  const handleAddOrUpdateDaysAndTime = () => {
+  const handleUpdateDaysAndTime = async () => {
     if (selectedDays.length === 0) {
       toast.info("Please select at least one day.");
       return;
@@ -162,51 +157,6 @@ function MeetingDashboard() {
       return;
     }
 
-    if (buttonText === "Add Days and Time") {
-      addMeetingSchedule();
-    } else {
-      updateMeetingSchedule();
-    }
-  };
-
-  const addMeetingSchedule = async () => {
-    try {
-      setButtonLoading(true);
-      const meetingId = meetingDetails?.meeting_id ?? "";
-
-      await axios.post("/meeting/add-schedule", {
-        meetingId,
-        selectedDays,
-        startTime,
-        endTime,
-      });
-
-      toast.success("Meeting schedule added successfully");
-      // setRefreshPage(true);
-      setShowForm(false);
-      fetchMeetingDetails();
-    } catch (error: any) {
-      if (error.response) {
-        if (error.response.status === 400) {
-          const errorMessage = error.response.data.error;
-          toast.error(errorMessage);
-        } else {
-          // Handle other errors
-          toast.error("Failed to add meeting schedule");
-        }
-      } else if (error.request) {
-        // The request was made but no response was received
-        toast.error("No response received from the server");
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        toast.error("Error adding meeting schedule:", error.message);
-      }
-    } finally {
-      setButtonLoading(false);
-    }
-  };
-
-  const updateMeetingSchedule = async () => {
     try {
       setButtonLoading(true);
       const meetingId = meetingDetails?.meeting_id ?? "";
@@ -223,28 +173,20 @@ function MeetingDashboard() {
       toast.success("Meeting schedule updated successfully");
       setShowForm(false);
       fetchMeetingDetails();
-      // setRefreshPage(true);
     } catch (error: any) {
       if (error.response) {
-        // The request was made and the server responded with a status code
-        // Handle specific errors based on status codes
         const statusCode = error.response.status;
         if (statusCode === 400) {
-          // Handle 400 Bad Request error
           const errorMessage = error.response.data.error;
           toast.error(errorMessage);
         } else if (statusCode === 404) {
-          // Handle 404 Not Found error
           toast.error("Meeting not found");
         } else {
-          // Handle other status codes generically
           toast.error("Failed to update meeting schedule");
         }
       } else if (error.request) {
-        // The request was made but no response was received
         toast.error("No response received from the server");
       } else {
-        // Something happened in setting up the request that triggered an Error
         toast.error("Error updating meeting schedule:", error.message);
       }
     } finally {
@@ -252,10 +194,9 @@ function MeetingDashboard() {
     }
   };
 
-  // Function to handle booking button click
   const handleRegistrationButtonClick = (meeting_id: any) => {
-    setSelectedMeeting(meeting_id); // Set the selected meeting
-    setShowRegistrationForm(true); // Set the selected meeting
+    setSelectedMeeting(meeting_id);
+    setShowRegistrationForm(true);
   };
 
   const renderLoading = () => (
@@ -319,7 +260,7 @@ function MeetingDashboard() {
                     onClick={() => setShowForm(true)}
                     className="bg-blue-500 hover:bg-blue-600 text-white font-serif shadow-md px-6 py-3 rounded-md transition duration-300 ease-in-out absolute top-40 right-4 mt-24  mx-4"
                   >
-                    {buttonText}
+                    Update Days and Time
                   </button>
                   {showForm && (
                     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
@@ -375,20 +316,28 @@ function MeetingDashboard() {
                         </div>
                         <div className="flex justify-end">
                           <button
-                            onClick={handleAddOrUpdateDaysAndTime}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out mr-2"
+                            onClick={handleUpdateDaysAndTime}
                             disabled={buttonLoading}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out mr-2"
                           >
-                            {buttonLoading ? "Processing..." : buttonText}
+                            {buttonLoading ? "Updating..." : "Update Schedule"}
                           </button>
                           <button
                             onClick={() => setShowForm(false)}
                             className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out"
                           >
-                            Close
+                            Cancel
                           </button>
                         </div>
                       </div>
+                    </div>
+                  )}
+                  {showRegistrationForm && (
+                    <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
+                      <RegistrationForm
+                        meeting={selectedMeeting}
+                        setShowRegistrationForm={setShowRegistrationForm}
+                      />
                     </div>
                   )}
                 </>
@@ -396,18 +345,6 @@ function MeetingDashboard() {
             </div>
           </div>
           <ToastContainer />
-          <footer className="text-center -mb-6 px-2 py-2 border-t border-black">
-            Copyright &copy; {new Date().getFullYear()} Concept. All rights
-            reserved.
-          </footer>
-        </div>
-      )}
-      {showRegistrationForm && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
-          <RegistrationForm
-            meeting={selectedMeeting}
-            setShowRegistrationForm={setShowRegistrationForm}
-          />
         </div>
       )}
     </>

@@ -890,7 +890,7 @@ app.post("/admin/meetings/create", (req, res) => {
           }
 
           // Insert meeting data into the database with hashed password, decoded admin username, and predefined meeting days
-          const meeting_days = "Monday, Tuesday, Wednesday, Thursday, Friday";
+          const meeting_days = "Monday,Tuesday,Wednesday,Thursday,Friday";
 
           connection.query(
             "INSERT INTO Meetings (room_name, authority_name, meeting_username, meeting_password, meeting_status, meeting_days, start_time, end_time, admin_username) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -3925,40 +3925,40 @@ const formatTime = (time) => {
 };
 
 // Endpoint to send days, start time, end time, and meeting username
-app.post("/meeting/add-schedule", (req, res) => {
-  const { meetingId, selectedDays, startTime, endTime } = req.body;
+// app.post("/meeting/add-schedule", (req, res) => {
+//   const { meetingId, selectedDays, startTime, endTime } = req.body;
 
-  const formattedStartTime = formatTime(startTime);
-  const formattedEndTime = formatTime(endTime);
+//   const formattedStartTime = formatTime(startTime);
+//   const formattedEndTime = formatTime(endTime);
 
-  // Check if start_time is less than end_time
-  if (formattedStartTime >= formattedEndTime) {
-    res.status(400).json({ error: "End time must be greater than start time" });
-    return;
-  }
+//   // Check if start_time is less than end_time
+//   if (formattedStartTime >= formattedEndTime) {
+//     res.status(400).json({ error: "End time must be greater than start time" });
+//     return;
+//   }
 
-  // Concatenate selected days into a single string separated by commas
-  const sortedMeetingDays = sortDays(selectedDays).join(",");
+//   // Concatenate selected days into a single string separated by commas
+//   const sortedMeetingDays = sortDays(selectedDays).join(",");
 
-  // Prepare the insert query
-  const query = `UPDATE Meetings SET meeting_days = ?, start_time = ?, end_time = ? WHERE meeting_id = ?`;
+//   // Prepare the insert query
+//   const query = `UPDATE Meetings SET meeting_days = ?, start_time = ?, end_time = ? WHERE meeting_id = ?`;
 
-  // Execute the insert query
-  connection.query(
-    query,
-    [sortedMeetingDays, formattedStartTime, formattedEndTime, meetingId],
-    (error) => {
-      if (error) {
-        console.error("Error adding meeting schedule:", error);
-        res.status(500).json({ error: "Internal server error" });
-        return;
-      }
+//   // Execute the insert query
+//   connection.query(
+//     query,
+//     [sortedMeetingDays, formattedStartTime, formattedEndTime, meetingId],
+//     (error) => {
+//       if (error) {
+//         console.error("Error adding meeting schedule:", error);
+//         res.status(500).json({ error: "Internal server error" });
+//         return;
+//       }
 
-      // Success response
-      res.status(201).json({ message: "Meeting schedule added successfully" });
-    }
-  );
-});
+//       // Success response
+//       res.status(201).json({ message: "Meeting schedule added successfully" });
+//     }
+//   );
+// });
 
 //for sort the days into a single string separated by commas an in week
 const daysOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -3966,59 +3966,73 @@ const sortDays = (days) => {
   return days.sort((a, b) => daysOrder.indexOf(a) - daysOrder.indexOf(b));
 };
 // Endpoint to update a meeting schedule
-//for updating a meeting schedule
+//for updating a meeting schedule****
 app.put("/meeting/update-schedule", (req, res) => {
   const { meetingId, selectedDays, startTime, endTime } = req.body;
 
-  const formattedStartTime = formatTime(startTime);
-  const formattedEndTime = formatTime(endTime);
+  const token = req.session.token;
 
-  // Check if start_time is less than end_time
-  if (formattedStartTime >= formattedEndTime) {
-    return res.status(400).json({ error: "End time must be greater than start time" });
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized. No token provided." });
   }
 
-  // Sort and concatenate selected days into a single string separated by commas
-  const sortedMeetingDays = sortDays(selectedDays).join(",");
+  try {
+    const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
+    const decoded = jwt.verify(token, secretKey);
+    const meetingUsername = decoded.meeting_username;
 
-  // Prepare the update query
-  const query =
-    "UPDATE Meetings SET meeting_days = ?, start_time = ?, end_time = ? WHERE meeting_id = ?";
+    const formattedStartTime = formatTime(startTime);
+    const formattedEndTime = formatTime(endTime);
 
-  // Execute the delete query to remove previous requests
-  const deleteQuery = "DELETE FROM MeetingSchedule WHERE meeting_id = ?";
-
-  connection.query(deleteQuery, [meetingId], (error) => {
-    if (error) {
-      console.error("Error deleting previous meeting requests:", error);
-      return res.status(500).json({ error: "Internal server error" });
+    // Check if start_time is less than end_time
+    if (formattedStartTime >= formattedEndTime) {
+      return res.status(400).json({ error: "End time must be greater than start time" });
     }
 
-    // Execute the update query
-    connection.query(
-      query,
-      [sortedMeetingDays, formattedStartTime, formattedEndTime, meetingId],
-      (error, results) => {
-        if (error) {
-          console.error("Error updating meeting schedule:", error);
-          return res.status(500).json({ error: "Internal server error" });
-        }
+    // Sort and concatenate selected days into a single string separated by commas
+    const sortedMeetingDays = sortDays(selectedDays).join(",");
 
-        // Check if any rows were affected by the update query
-        if (results.affectedRows === 0) {
-          // If no rows were affected, it means the meeting schedule for the provided meeting ID does not exist
-          return res.status(404).json({ error: "Meeting schedule not found" });
-        }
+    // Prepare the update query
+    const query = "UPDATE Meetings SET meeting_days = ?, start_time = ?, end_time = ? WHERE meeting_id = ?";
 
-        // Success response
-        return res.status(200).json({ message: "Meeting schedule updated successfully" });
+    // Execute the delete query to remove previous requests
+    const deleteQuery = "DELETE FROM MeetingSchedule WHERE meeting_id = ?";
+
+    connection.query(deleteQuery, [meetingId], (error) => {
+      if (error) {
+        console.error("Error deleting previous meeting requests:", error);
+        return res.status(500).json({ error: "Internal server error" });
       }
-    );
-  });
+
+      // Execute the update query
+      connection.query(
+        query,
+        [sortedMeetingDays, formattedStartTime, formattedEndTime, meetingId],
+        (error, results) => {
+          if (error) {
+            console.error("Error updating meeting schedule:", error);
+            return res.status(500).json({ error: "Internal server error" });
+          }
+
+          // Check if any rows were affected by the update query
+          if (results.affectedRows === 0) {
+            // If no rows were affected, it means the meeting schedule for the provided meeting ID does not exist
+            return res.status(404).json({ error: "Meeting schedule not found" });
+          }
+
+          // Success response
+          return res.status(200).json({ message: "Meeting schedule updated successfully" });
+        }
+      );
+    });
+  } catch (error) {
+    console.error("Error verifying token:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 
-// fetch monday,tuesday etc days for meeting for meeting form days and time
+// fetch monday,tuesday etc days for meeting for meeting form days and time****
 app.get("/meeting/selectedDays", (req, res) => {
 
   // Extract the token from the request headers
@@ -4126,7 +4140,7 @@ app.put("/meeting/accept/:schedule_id", async (req, res) => {
 });
 
 
-//sending meeting req from meeting side *****
+//Sending meeting req from meeting side *****
 app.post("/meeting/booking/schedule/send", (req, res) => {
   const { meeting_title, meeting_date, meeting_day, start_time, end_time, meeting_option, meeting_link } = req.body;
 

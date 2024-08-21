@@ -1,6 +1,7 @@
 CREATE DATABASE CSIR;
 
 
+
 USE CSIR;
 
 
@@ -8,6 +9,7 @@ CREATE TABLE Superadmin (
     superadmin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL PRIMARY KEY,
     superadmin_password VARCHAR(255) NOT NULL
 );
+
 
 INSERT INTO Superadmin (superadmin_username, superadmin_password) 
 VALUES ('admin', '1234');
@@ -35,7 +37,6 @@ CREATE TABLE Meetings (
     meeting_days VARCHAR(1024),
     start_time TIME,
     end_time TIME,
-	meeting_link VARCHAR(255),
     admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -67,12 +68,12 @@ CREATE TABLE MeetingSchedule (
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     meeting_option VARCHAR(255) NOT NULL,
+    meeting_link VARCHAR(255),
     request_status BOOLEAN,
     reason_for_rejection VARCHAR(225),
     FOREIGN KEY (meeting_id) REFERENCES Meetings(meeting_id),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
-
 
 
 CREATE TABLE VCinformation (
@@ -103,11 +104,14 @@ CREATE TABLE VCinformation (
 );
 
 
+
+
 SELECT * FROM Admins;
 SELECT * FROM Users;
-SELECT * FROM MeetingSchedule;
 SELECT * FROM Superadmin;
 SELECT * FROM Meetings;
+SELECT * FROM MeetingSchedule;
+SELECT * FROM Vcinformation;
 
 TRUNCATE TABLE Admins;	
 TRUNCATE TABLE Meetings;
@@ -119,6 +123,8 @@ DROP TABLE Admins;
 DROP TABLE Users;
 DROP TABLE Meetingschedule;
 DROP TABLE Meetings;
+DROP TABLE Vcinformation;
+
 
 DESC Superadmin;
 DESC Admins;
