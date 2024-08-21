@@ -130,7 +130,7 @@ DESC Superadmin;
 DESC Admins;
 DESC Meetings;
 DESC Users;
-
+l
 
 
 -- for .env file

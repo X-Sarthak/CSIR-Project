@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface SidebarItem {
    label: string;
-   link:  string;
+   link: string;
 }
 
 const items: SidebarItem[] = [
@@ -51,25 +51,32 @@ function MeetingSidebar(): JSX.Element {
     setActiveLink(location.pathname);
   }, [location.pathname]);
 
+  const handleLinkClick = (link: string) => {
+    if (activeLink === link) {
+      window.location.reload(); // Refresh the page if clicking on the current tab
+    } else {
+      navigate(link); // Navigate to the new tab otherwise
+    }
+  };
+
   if (!validSession) {
     return <></>; // Return an empty fragment if session is not valid
   }
 
   return (
     <div className='flex flex-col gap-2'>
-      {items?.map((item: SidebarItem) => (
-        <Link
+      {items.map((item: SidebarItem) => (
+        <button
           key={item.label}
-          to={item.link}
+          onClick={() => handleLinkClick(item.link)}
           className={`px-16 py-2 border font-serif bg-sky-600 text-white
                       transition-transform duration-200 ease-in-out
                       hover:bg-sky-700
                       focus:outline-none
                       ${activeLink === item.link ? 'border-black ring-1 ring-black ring-opacity-100' : 'border-black'}`}
-          onClick={() => setActiveLink(item.link)}
         >
           {item.label}
-        </Link>
+        </button>
       ))}
     </div>
   );

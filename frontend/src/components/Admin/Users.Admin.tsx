@@ -8,6 +8,7 @@ import EditUserForm from "./EditFormUser.Admin";
 import { FaLock } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import * as XLSX from "xlsx"; // Import XLSX library
+import Spinner from "../Utility/Spinner.Utility";
 
 
 axios.defaults.withCredentials = true;
@@ -25,10 +26,12 @@ function Users() {
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [searchText, setSearchText] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all"); // New state for the select dropdown
+  const [loading, setLoading] = useState(false);
   const navigator = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
+      setLoading(true);
       try {
         const token = sessionStorage.getItem("token");
         const adminUsername = sessionStorage.getItem("admin_username") ?? "";
@@ -37,20 +40,19 @@ function Users() {
           return;
         }
 
-        const response = await axios.post<{ valid: boolean }>(
-          "/admin/validateToken",
-          { token }
-        );
+        const response = await axios.post<{ valid: boolean }>("/admin/validateToken", { token });
         if (response.data.valid) {
           setValidSession(true);
-          fetchAdminDetails();
-          fetchUsersDetails();
+          await fetchAdminDetails();
+          await fetchUsersDetails();
         } else {
           navigator("/");
         }
       } catch (error) {
         console.error("Error validating session:", error);
         navigator("/");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -58,33 +60,37 @@ function Users() {
   }, [navigator]);
 
   const fetchAdminDetails = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get("/admin/details", {});
+      const response = await axios.get("/admin/details");
       setAdminDetails(response.data);
     } catch (error) {
       console.error("Error fetching admin details:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchUsersDetails = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`/admin/users/details`);
       const reversedSchedule = response.data.reverse();
       setUsers(reversedSchedule);
     } catch (error) {
       console.error("Error fetching users details:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
+    setLoading(true);
     try {
-      const response = await axios.delete(`/admin/users/delete/${userId}`, {
-        withCredentials: true,
-      });
-
+      const response = await axios.delete(`/admin/users/delete/${userId}`, { withCredentials: true });
       if (response.status === 200) {
         toast.success("Successfully Deleted");
-        fetchUsersDetails();
+        await fetchUsersDetails();
       }
     } catch (error: any) {
       if (error.response && error.response.status === 404) {
@@ -92,6 +98,8 @@ function Users() {
       } else {
         console.error("Error deleting user:", error);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,30 +113,22 @@ function Users() {
   };
 
   const toggleUserStatus = async (user_id: string, currentStatus: number) => {
+    setLoading(true);
     try {
       let response;
       if (currentStatus === 1) {
-        response = await axios.put(
-          `/admin/user/status/disable/${user_id}`,
-          {},
-          { withCredentials: true }
-        );
-        if (response.status === 200) {
-          fetchUsersDetails();
-        }
+        response = await axios.put(`/admin/user/status/disable/${user_id}`, {}, { withCredentials: true });
       } else {
-        response = await axios.put(
-          `/admin/user/status/enable/${user_id}`,
-          {},
-          { withCredentials: true }
-        );
-        if (response.status === 200) {
-          fetchUsersDetails();
-        }
+        response = await axios.put(`/admin/user/status/enable/${user_id}`, {}, { withCredentials: true });
+      }
+      if (response.status === 200) {
+        await fetchUsersDetails();
       }
     } catch (error) {
       console.error("Error toggling User status:", error);
       toast.error("Error toggling User status");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -157,15 +157,18 @@ function Users() {
   };
 
   const handleSearch = async () => {
+    setLoading(true);
     try {
       const response = await axios.post(`/admin/users/search`, {
-        category: selectedCategory, // Send the selected category
+        category: selectedCategory,
         text: searchText,
       });
-      setUsers(response.data); // Update users with search results
+      setUsers(response.data);
     } catch (error) {
       toast.info("Select the Category");
       console.error("Error searching users:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -216,6 +219,7 @@ const handlePrintClick = () => {
   
   return (
     <>
+     {loading && <Spinner />}
       {validSession && (
         <div>
           <AdminHeader dashboardType="Admin" />
@@ -240,7 +244,7 @@ const handlePrintClick = () => {
                       </option>
                     ))}
                   </select>
-                  <h1 className="text-sm font-serif ml-4 mr-2">
+                  <h1 className="block text-sm font-medium text-gray-700 ml-2 mr-2">
                     Username: {adminDetails.admin_username}
                   </h1>
                      {/* Select Dropdown for Category */}

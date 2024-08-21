@@ -32,7 +32,7 @@ function BookingSchedule() {
   const [selectedMeeting, setSelectedMeeting] = useState<string>("");
   const [meetingDetails, setMeetingDetails] = useState<MeetingDetail[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1); // Pagination states
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterOption, setFilterOption] = useState<string>("");
   const [loading, setLoading] = useState(false); // Add loading state
@@ -238,7 +238,7 @@ function BookingSchedule() {
                     />
                     <button
                       onClick={handleSearch} // Update to your search handler
-                      className="ml-2 px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                      className="ml-2 px-3 py-1 border border-black rounded-md bg-green-500 hover:bg-green-600 text-white"
                     >
                       Search
                     </button>

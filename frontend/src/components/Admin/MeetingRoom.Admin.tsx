@@ -7,6 +7,7 @@ import MeetingCreateForm from "./MeetingCreateForm.Admin";
 import { FaEdit, FaTrash, FaLock } from "react-icons/fa";
 import EditForm from "./EditFormMeeting.Admin";
 import { toast, ToastContainer } from "react-toastify";
+import Spinner from "../Utility/Spinner.Utility";
 
 axios.defaults.withCredentials = true;
 
@@ -20,10 +21,12 @@ function MeetingRoom() {
   const [editMeeting, setEditMeeting] = useState<any | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1); // Pagination states
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [loading, setLoading] = useState(false);
   const navigator = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
+      setLoading(true); // Start loading
       try {
         const token = sessionStorage.getItem("token");
         const adminUsername = sessionStorage.getItem("admin_username") ?? "";
@@ -45,30 +48,39 @@ function MeetingRoom() {
         }
       } catch (error) {
         console.error("Error validating session:", error);
-        console.log("heelo");
         navigator("/");
+      } 
+      finally {
+        setLoading(false); // End loading
       }
     };
 
     checkSession();
-  }, []);
+  }, [navigator]);
 
   const fetchAdminDetails = async () => {
+    setLoading(true); // Start loading
     try {
       const response = await axios.get("/admin/details", {});
       setAdminDetails(response.data);
     } catch (error) {
       console.error("Error fetching admin details:", error);
+    }  finally {
+      setLoading(false); // End loading
     }
   };
 
   const fetchMeetingDetails = async () => {
+    setLoading(true); // Start loading
     try {
       const response = await axios.get(`/admin/meetings/details`);
       const reversedSchedule = response.data.reverse();
       setMeetings(reversedSchedule);
     } catch (error) {
       console.error("Error fetching meeting details:", error);
+    }
+    finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -81,6 +93,7 @@ function MeetingRoom() {
   };
 
   const handleDeleteMeeting = async (meetingId: string) => {
+    setLoading(true); // Start loading
     try {
       await axios.delete(`/admin/meetings/delete/${meetingId}`, {
         withCredentials: true,
@@ -103,12 +116,16 @@ function MeetingRoom() {
       }
       console.error("Error deleting meeting:", error);
     }
+    finally {
+      setLoading(false); // End loading
+    }
   };
 
   const toggleMeetingStatus = async (
     meetingId: string,
     currentStatus: number
   ) => {
+    setLoading(true); // Start loading
     try {
       let response;
       if (currentStatus === 1) {
@@ -150,6 +167,9 @@ function MeetingRoom() {
       }
       console.error("Error toggling meeting status:", error);
     }
+    finally {
+      setLoading(false); // End loading
+    }
   };
 
   const handleEditMeeting = (meeting: any) => {
@@ -182,6 +202,7 @@ function MeetingRoom() {
 
   return (
     <>
+    {loading && <Spinner />}
       {validSession && (
         <div>
           <AdminHeader dashboardType="Admin" />

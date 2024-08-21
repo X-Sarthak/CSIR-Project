@@ -21,10 +21,10 @@ function AdminDashboard() {
 
   useEffect(() => {
     const checkSession = async () => {
+      setLoading(true);
       try {
         const token = sessionStorage.getItem("token");
         const adminUsername = sessionStorage.getItem("admin_username") ?? "";
-        setLoading(true);
         if (!token || !adminUsername) {
           navigator("/");
           return;

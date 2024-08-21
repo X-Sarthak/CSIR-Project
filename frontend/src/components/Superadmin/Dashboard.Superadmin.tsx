@@ -6,7 +6,6 @@ import CreateAdminForm from "./CreateAdminForm.Superadmin";
 import EditPasswordForm from "./EditPasswordForm.Superadmin";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrash, FaLock } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Utility/Spinner.Utility";
 
@@ -92,7 +91,6 @@ function SuperAdminDashboard() {
   const deleteAdmin = async (adminId: string) => {
     try {
       await axios.delete(`/admin/${adminId}`);
-      toast.success("Successfully Deleted");
       // Remove the deleted admin from the state
       setAdmins(admins.filter((admin) => admin.admin_id !== adminId));
     } catch (error) {
@@ -104,7 +102,6 @@ function SuperAdminDashboard() {
   const disableAdmin = async (adminId: string) => {
     try {
       await axios.put(`/admin/disable/${adminId}`);
-      toast.warn("Successfully Disable");
       // Update admin status in state
       setAdmins(
         admins.map((admin) => {
@@ -123,7 +120,6 @@ function SuperAdminDashboard() {
   const enableAdmin = async (adminId: string) => {
     try {
       await axios.put(`/admin/enable/${adminId}`);
-      toast.success("Successfully Enable");
       // Update admin status in state
       setAdmins(
         admins.map((admin) => {
@@ -241,7 +237,6 @@ function SuperAdminDashboard() {
               )}
             </div>
           </div>
-          <ToastContainer />
           <footer className="text-center px-4 py-2 border-t border-black">
             Copyright &copy; {new Date().getFullYear()} Concept. All rights
             reserved.
