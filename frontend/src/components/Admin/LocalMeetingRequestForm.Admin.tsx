@@ -182,6 +182,7 @@ function LocalMeetingRequest() {
       setPresentationRequired(false);
       setRecordingRequired(false);
       setRemarks("");
+      setAgree(false);
       setLoading(false);
 
       // Optionally, reset any other form state or redirect to another page on success

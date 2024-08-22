@@ -24,7 +24,7 @@ function LocalMeetingInfo() {
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1); // Pagination states
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(20);
 
   const navigator = useNavigate();
 
@@ -33,7 +33,7 @@ function LocalMeetingInfo() {
       try {
         const token = sessionStorage.getItem("token");
         const adminUsername = sessionStorage.getItem("admin_username") ?? "";
-        setLoading(true);
+        setLoading(true); // Start loading
         if (!token || !adminUsername) {
           navigator("/");
           return;
@@ -47,15 +47,14 @@ function LocalMeetingInfo() {
           setValidSession(true);
           fetchAdminDetails();
           fetchLabOptions(); // Fetch laboratory options
-          setLoading(false);
         } else {
           navigator("/");
-          setLoading(false);
         }
       } catch (error) {
         console.error("Error validating session:", error);
         navigator("/");
-        setLoading(false);
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
 
@@ -65,7 +64,7 @@ function LocalMeetingInfo() {
   useEffect(() => {
     const fetchFilteredVcInformation = async () => {
       try {
-        setLoading(true);
+        setLoading(true); // Start loading
 
         if (selectedLab !== "All Selected" && fromDate && toDate) {
           // Lab and date range are selected
@@ -130,13 +129,12 @@ function LocalMeetingInfo() {
           // No filters selected
           fetchVcInformation();
         }
-
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching VC information with filters:", error);
         toast.info("No data found for the selected date filters.");
         setVcInformation([]); // Ensure vcInformation is cleared on error
-        setLoading(false);
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
 
@@ -145,25 +143,32 @@ function LocalMeetingInfo() {
 
   const fetchAdminDetails = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.get("/admin/details");
       setAdminDetails(response.data);
     } catch (error) {
       console.error("Error fetching admin details:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const fetchVcInformation = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.get("/admin/laboratory/All/meeting/detail");
       const reversedSchedule = response.data.reverse();
       setVcInformation(reversedSchedule);
     } catch (error) {
       console.error("Error fetching VC information:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const fetchVcInformationByLab = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.post("/admin/laboratory/lab-detail", {
         labOrInstitution: selectedLab,
       });
@@ -171,11 +176,14 @@ function LocalMeetingInfo() {
       setVcInformation(reversedSchedule);
     } catch (error) {
       console.error("Error fetching VC information:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const fetchVcInformationByYear = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.post("/admin/laboratory/year-detail", {
         year: selectedYear,
       });
@@ -183,11 +191,14 @@ function LocalMeetingInfo() {
       setVcInformation(reversedSchedule);
     } catch (error) {
       console.error("Error fetching VC information by year:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const fetchVcInformationByMonth = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.post("/admin/laboratory/month-detail", {
         month: selectedMonth,
       });
@@ -195,28 +206,36 @@ function LocalMeetingInfo() {
       setVcInformation(reversedSchedule);
     } catch (error) {
       console.error("Error fetching VC information by month:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const fetchLabOptions = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.get("/admin/laboratory/options");
       const reversedSchedule = response.data.reverse();
       setLabOptions(reversedSchedule);
       setSelectedLab("All Selected"); // Set "All Selected" after fetching options
     } catch (error) {
       console.error("Error fetching laboratory options:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   const fetchSummaryInformation = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.get("/admin/laboratory/All/meeting/summary");
 
       const reversedSchedule = response.data.reverse();
       setVcInformation(reversedSchedule);
     } catch (error) {
       console.error("Error fetching summary information:", error);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -452,15 +471,15 @@ function LocalMeetingInfo() {
                   </div>
                   <div className="mt-1 overflow-x-auto">
                     <table className="min-w-full bg-white border border-gray-300">
-                      <thead className="bg-gray-200 text-xxs">
+                      <thead className="bg-gray-200 text-sm">
                         <tr>
                           <th className="border border-gray-300 px-1 py-1">
                             ID
                           </th>
-                          <th className="border border-gray-300 px-7 py-1">
+                          <th className="border border-gray-300 px-10 py-1">
                             Meeting Date
                           </th>
-                          <th className="border border-gray-300 px-37 py-1">
+                          <th className="border border-gray-300 px-52 py-1">
                             Lab/Institution
                           </th>
                           <th className="border border-gray-300 px-4 py-1">
@@ -477,22 +496,22 @@ function LocalMeetingInfo() {
                               <th className="border border-gray-300 px-5 py-1">
                                 Contact Details
                               </th>
-                              <th className="border border-gray-300 px-25 py-1">
+                              <th className="border border-gray-300 px-36 py-1">
                                 VC Venue Name
                               </th>
-                              <th className="border border-gray-300 px-6 py-1">
+                              <th className="border border-gray-300 px-8 py-1">
                                 Requester Date
                               </th>
-                              <th className="border border-gray-300 px-4 py-1">
+                              <th className="border border-gray-300 px-5 py-1">
                                 Start Time
                               </th>
-                              <th className="border border-gray-300 px-4 py-1">
+                              <th className="border border-gray-300 px-5 py-1">
                                 End Time
                               </th>
                               <th className="border border-gray-300 px-21 py-1">
                                 Parties
                               </th>
-                              <th className="border border-gray-300 px-28 py-1">
+                              <th className="border border-gray-300 px-96 py-1">
                                 Lab/Institution Far Sight
                               </th>
                               <th className="border border-gray-300 px-6 py-1">
@@ -526,13 +545,13 @@ function LocalMeetingInfo() {
                           )}
                           {viewMode === "summary" && (
                             <>
-                              <th className="border border-gray-300 px-12 py-1">
+                              <th className="border border-gray-300 px-14 py-1">
                                 Time Range
                               </th>
-                              <th className="border border-gray-300 px-25 py-1">
+                              <th className="border border-gray-300 px-36 py-1">
                                 VC Venue Name
                               </th>
-                              <th className="border border-gray-300 px-28 py-1">
+                              <th className="border border-gray-300 px-96 py-1">
                                 Lab/Institution Far Sight
                               </th>
                               <th className="border border-gray-300 px-6 py-1">
@@ -558,76 +577,76 @@ function LocalMeetingInfo() {
                         ) : (
                           currentItems.map((vcInfo) => (
                             <tr key={vcInfo.id}>
-                              <td className="border border-gray-300 text-xxxs px-1 py-1 text-center">
+                              <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                 {vcInfo.id}
                               </td>
-                              <td className="border border-gray-300 text-xxs  px-1 py-1 text-center">
+                              <td className="border border-gray-300 text-sm  px-1 py-1 text-center">
                                 {vcInfo.meetingDate}
                               </td>
-                              <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                              <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                 {vcInfo.labOrInstitution}
                               </td>
-                              <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                              <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                 {vcInfo.requesterName}
                               </td>
                               {viewMode === "detailed" && (
                                 <>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.designation}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.division}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.contactDetails}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.vcVenueName}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.requestDate}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.startTime}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.endTime}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.parties}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.labOrInstitutionFarSight}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.personName}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.personContact}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.location}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.connectivityDetails ? (
                                       vcInfo.connectivityDetails
                                     ) : (
                                       <span className="text-red-600">N/A</span>
                                     )}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.subject}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.members}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.presentationRequired ? "Yes" : "No"}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.recordingRequired ? "Yes" : "No"}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.remarks ? (
                                       vcInfo.remarks
                                     ) : (
@@ -638,17 +657,17 @@ function LocalMeetingInfo() {
                               )}
                               {viewMode === "summary" && (
                                 <>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">{`${vcInfo.startTime} to ${vcInfo.endTime}`}</td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">{`${vcInfo.startTime} to ${vcInfo.endTime}`}</td>
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.vcVenueName}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.labOrInstitutionFarSight}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.subject}
                                   </td>
-                                  <td className="border border-gray-300 text-xxs px-1 py-1 text-center">
+                                  <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.remarks ? (
                                       vcInfo.remarks
                                     ) : (
@@ -664,31 +683,33 @@ function LocalMeetingInfo() {
                     </table>
                   </div>
                   {/* Pagination Controls */}
-              <div className="flex justify-between items-center mt-2 mb-2 px-1">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1 || totalPages === 0}
-                  className="px-3 py-1 text-white rounded-md bg-blue-500 hover:bg-blue-600 disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <span
-                  className={`px-3 py-1 rounded-md mx-1 ${
-                    totalPages === 0 ? "bg-gray-300 hover:bg-gray-400 opacity-50 " : "bg-blue-500 text-white"
-                  }`}
-                >
-                  {totalPages === 0
-                    ? "No Pages"
-                    : `${currentPage} / ${totalPages}`}
-                </span>
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages || totalPages === 0}
-                  className="px-3 py-1 text-white rounded-md bg-blue-500 hover:bg-blue-600 disabled:opacity-50 cursor-pointer"
-                >
-                  Next
-                </button>
-              </div>
+                  <div className="flex justify-between items-center mt-2 mb-2 px-1">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1 || totalPages === 0}
+                      className="px-3 py-1 text-white rounded-md bg-blue-500 hover:bg-blue-600 disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    <span
+                      className={`px-3 py-1 rounded-md mx-1 ${
+                        totalPages === 0
+                          ? "bg-gray-300 hover:bg-gray-400 opacity-50 "
+                          : "bg-blue-500 text-white"
+                      }`}
+                    >
+                      {totalPages === 0
+                        ? "No Pages"
+                        : `${currentPage} / ${totalPages}`}
+                    </span>
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages || totalPages === 0}
+                      className="px-3 py-1 text-white rounded-md bg-blue-500 hover:bg-blue-600 disabled:opacity-50 cursor-pointer"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </>
               )}
             </div>
