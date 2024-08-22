@@ -415,10 +415,10 @@ function LocalMeetingRequest() {
             </div>
             <div className="flex-1 border-l border-black bg-white flex flex-col">
               {adminDetails && (
-                <div className="bg-white border-t border-r border-b border-black mt-2 p-2.5">
-                  <h1 className="text-sm font-serif relative">
-                    Username: {adminDetails.admin_username}
-                  </h1>
+              <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5">
+              <h1 className="text-xl font-serif text-center text-white">
+                Local/VC Form
+              </h1>
                 </div>
               )}
               {/* Form Section */}

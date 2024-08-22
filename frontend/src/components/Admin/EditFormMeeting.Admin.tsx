@@ -9,6 +9,8 @@ interface Meeting {
   authority_name: string;
   meeting_username: string;
   meeting_password: string;
+  start_time: string;
+  end_time: string;
 }
 
 interface Props {
@@ -23,6 +25,8 @@ function EditForm({ meeting, onClose }: Props) {
     authorityName: meeting.authority_name || "",
     meetingUsername: meeting.meeting_username || "",
     meetingPassword: meeting.meeting_password || "",
+    startTime: meeting.start_time ||"",
+    endTime: meeting.end_time ||"",
     
   });
     const [loading, setLoading] = useState(false);
@@ -54,7 +58,7 @@ function EditForm({ meeting, onClose }: Props) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true); // Set loading to true when form submission starts
-
+  
     if (formData.meetingUsername.includes(" ")) {
       toast.error("Spaces are not allowed in the meeting username.");
       setLoading(false); // Set loading to false when form submission ends
@@ -65,7 +69,7 @@ function EditForm({ meeting, onClose }: Props) {
       setLoading(false); // Set loading to false when form submission ends
       return;
     }
-
+  
     try {
       // Make API call using Axios
       await axios.put(
@@ -75,23 +79,39 @@ function EditForm({ meeting, onClose }: Props) {
           withCredentials: true, // Include cookies in the request
         }
       );
+      
       // Close the form after successful submission
       onClose();
+      
       // Reload the window
-
-
       window.location.reload();
-      setLoading(false); // Set loading to false when form submission ends
     } catch (error: any) {
-      if (error.response && error.response.status === 400) {
-        toast.error("Meeting username already exists.");
+      if (error.response) {
+        // Check the status and handle accordingly
+        if (error.response.status === 400) {
+          if (error.response.data.error === "End time must be greater than start time") {
+            toast.error("End time must be greater than start time.");
+          } else if (error.response.data.error === "Meeting username already exists for another meeting.") {
+            toast.error("Meeting username already exists for another meeting.");
+          } else if (error.response.data.error === "No fields to update.") {
+            toast.error("No fields to update.");
+          } else {
+            toast.error(error.response.data.error);
+          }
+        } else if (error.response.status === 401) {
+          toast.error("Access denied. Invalid token.");
+        } else {
+          toast.error("An error occurred while updating meeting details.");
+        }
       } else {
         toast.error("Error updating meeting details.");
       }
       console.error("Error updating meeting details:", error);
+    } finally {
+      setLoading(false); // Set loading to false when form submission ends
     }
-    setLoading(false); // Set loading to false when form submission ends
   };
+  
 
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
@@ -165,9 +185,38 @@ function EditForm({ meeting, onClose }: Props) {
               value={formData.meetingPassword}
               onChange={handleChange}
               className="rounded-md border border-black p-2 w-full focus:outline-none focus:border-blue-500"
-              
             />
           </div>
+          <div className="flex justify-between mb-3">
+              <div className="flex-1 mr-2">
+                <label htmlFor="startTime" className="block font-semibold mb-1">
+                  Start Time:
+                </label>
+                <input
+                  type="time"
+                  id="startTime"
+                  name="startTime"
+                  value={formData.startTime}
+                  onChange={handleChange}
+                  className="rounded-md border border-black p-2 w-full focus:outline-none focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div className="flex-1 ml-2">
+                <label htmlFor="endTime" className="block font-semibold mb-1">
+                  End Time:
+                </label>
+                <input
+                  type="time"
+                  id="endTime"
+                  name="endTime"
+                  value={formData.endTime}
+                  onChange={handleChange}
+                  className="rounded-md border border-black p-2 w-full focus:outline-none focus:border-blue-500"
+                  required
+                />
+              </div>
+            </div>
           <div className="flex justify-end">
             <button
               type="button"

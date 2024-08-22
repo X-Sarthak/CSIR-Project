@@ -17,6 +17,6 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
-    '@typescript-eslint/no-explicit-any': 'error'  // This is added correctly here
-  }
+    '@typescript-eslint/no-explicit-any': 'error'  // Enforces type safety by disallowing 'any'
+  },
 };

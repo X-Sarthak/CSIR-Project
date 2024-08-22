@@ -89,7 +89,7 @@ CREATE TABLE VCinformation (
     startTime TIME NOT NULL,
     endTime TIME NOT NULL,
     parties TEXT NOT NULL,
-    labOrInstitutionFarSight VARCHAR(255) NOT NULL,
+    labOrInstitutionFarSight VARCHAR(1024) NOT NULL,
     personName VARCHAR(255) NOT NULL,
     personContact VARCHAR(255) NOT NULL,
     location VARCHAR(255) NOT NULL,
@@ -130,7 +130,6 @@ DESC Superadmin;
 DESC Admins;
 DESC Meetings;
 DESC Users;
-l
 
 
 -- for .env file

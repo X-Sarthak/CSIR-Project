@@ -8,6 +8,8 @@ import { FaEdit, FaTrash, FaLock } from "react-icons/fa";
 import EditForm from "./EditFormMeeting.Admin";
 import { toast, ToastContainer } from "react-toastify";
 import Spinner from "../Utility/Spinner.Utility";
+import * as XLSX from "xlsx";
+
 
 axios.defaults.withCredentials = true;
 
@@ -18,6 +20,8 @@ function MeetingRoom() {
   } | null>(null);
   const [showMeetingForm, setShowMeetingForm] = useState(false);
   const [meetings, setMeetings] = useState<any[]>([]);
+  const [searchText, setSearchText] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Not Selected"); // New state for the select dropdown
   const [editMeeting, setEditMeeting] = useState<any | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1); // Pagination states
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
@@ -176,6 +180,49 @@ function MeetingRoom() {
     setEditMeeting(meeting);
   };
 
+
+  const handleResetClick = () => {
+    setMeetings([]); // Clear the users data
+    // setSelectedCategory(""); // Reset the category selection to default
+    // setSearchText(""); // Clear the search text input
+    setItemsPerPage(10); // Reset items per page to the default value
+    fetchMeetingDetails(); // Refetch all users to reset the table
+  };
+
+  const handlePrintClick = () => {
+    if (meetings.length === 0) {
+      toast.info("No meeting data available to export.");
+      return;
+    }
+
+    // Prepare data with custom headers
+    const meetingsWithCustomHeaders = meetings.map((meeting) => ({
+      "Room Name": meeting.room_name,
+      "Approver Name": meeting.authority_name,
+      "Meeting Username": meeting.meeting_username,
+      "Meeting Available Days": meeting.meeting_days,
+    }));
+
+    // Create worksheet with custom headers
+    const ws = XLSX.utils.json_to_sheet(meetingsWithCustomHeaders);
+
+    // Set column widths (optional, but can be adjusted as needed)
+    ws["!cols"] = [
+      { width: 20 }, // Room Name
+      { width: 25 }, // Approver Name
+      { width: 30 }, // Meeting Username
+      { width: 35 }, // Meeting Available Days
+    ];
+
+    // Create workbook and append worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Meetings");
+
+    // Generate Excel file and trigger download
+    XLSX.writeFile(wb, "Meetings-CSIR Data.xlsx");
+  };
+
+
   // Calculate paginated data
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -213,7 +260,7 @@ function MeetingRoom() {
             <div className="flex-1 border-l border-black bg-gray-400/50 flex flex-col">
               <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5">
                 <h1 className="text-xl font-serif text-center text-white">
-                  Meeting Rooms:
+                  Meeting Rooms
                 </h1>
               </div>
               {adminDetails && (
@@ -232,11 +279,47 @@ function MeetingRoom() {
                       </option>
                     ))}
                   </select>
-                  <h1 className="text-sm font-serif ml-4 mr-6">
+                  <h1 className="block text-sm font-medium text-gray-700 ml-2 mr-2">
                     Username: {adminDetails.admin_username}
                   </h1>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="border border-gray-300 px-2 py-1 rounded-md ml-2"
+                  >
+                      <option value=""> Not Selected</option>
+                    <option value="Room Name">Room Name</option>
+                    <option value="Approver Name"> Approver Name</option>
+                    <option value="Username">Username</option>
+                  </select>
+                  {/* Search Email Input */}
+                  <input
+                    type="text"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    className="border border-gray-300 px-2 py-1 rounded-md ml-2"
+                    placeholder="Search"
+                  />
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-serif px-4 py-1  rounded-md ml-2"
+                    // onClick={handleSearch}
+                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 border border-black rounded-md ml-2"
+                  >
+                    Search
+                  </button>
+                  <button
+                      onClick={handleResetClick} // Update to your search handler
+                      className="ml-2 px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={handlePrintClick} // Update to your search handler
+                      className="ml-2 px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                    >
+                      Print
+                    </button>
+                  <button
+                    className="px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600 ml-2"
                     onClick={handleAddMeetingClick}
               >
                 Add Rooms
@@ -259,6 +342,10 @@ function MeetingRoom() {
                         <p>Approver Name: {meeting.authority_name}</p>
                         <p>Username: {meeting.meeting_username}</p>
                         <p>Meeting Available: {meeting.meeting_days}</p>
+                        <div className="justify-between">
+                        <p>Start Time: {meeting.start_time}</p>
+                        <p>End Time: {meeting.end_time}</p>
+                        </div>
                       </div>
                       <div className="flex gap-6">
                         <FaLock

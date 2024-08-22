@@ -866,6 +866,14 @@ app.post("/admin/meetings/create", (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    const formattedStartTime = formatTime(start_time);
+    const formattedEndTime = formatTime(end_time);
+
+    // Check if start_time is less than end_time
+    if (formattedStartTime >= formattedEndTime) {
+      return res.status(400).json({ error: "End time must be greater than start time" });
+    }
+
     // Encrypt the meeting password
     bcrypt.hash(meeting_password, 10, (err, hashedPassword) => {
       if (err) {
@@ -901,8 +909,8 @@ app.post("/admin/meetings/create", (req, res) => {
               hashedPassword,
               meeting_status,
               meeting_days,
-              start_time,
-              end_time,
+              formattedStartTime,
+              formattedEndTime,
               adminUsername,
             ],
             (error, results) => {
@@ -942,7 +950,7 @@ app.get("/admin/meetings/details", (req, res) => {
 
     // Query database to get meeting details for the specified admin
     connection.query(
-      "SELECT meeting_id, room_name, authority_name, meeting_username, meeting_status, meeting_days FROM Meetings WHERE admin_username = ?",
+      "SELECT  meeting_id, room_name, authority_name, meeting_username, meeting_status, meeting_days, DATE_FORMAT(start_time, '%H:%i') AS start_time, DATE_FORMAT(end_time, '%H:%i') AS end_time FROM Meetings WHERE admin_username = ?",
       [adminUsername],
       (error, meetings) => {
         if (error) {
@@ -1173,7 +1181,7 @@ app.put("/admin/meetings/status/enable/:meetingId", (req, res) => {
 //   }
 // });
 app.put("/admin/meetings/update/:meetingId", async (req, res) => {
-  const { roomName, authorityName, meetingUsername, meetingPassword } = req.body;
+  const { roomName, authorityName, meetingUsername, meetingPassword, startTime, endTime } = req.body;
 
   // Extract the token from session
   const token = req.session.token;
@@ -1186,6 +1194,14 @@ app.put("/admin/meetings/update/:meetingId", async (req, res) => {
     const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
     const decoded = jwt.verify(token, secretKey);
     const adminUsername = decoded.admin_username;
+
+    const formattedStartTime = formatTime(startTime);
+    const formattedEndTime = formatTime(endTime);
+
+    // Check if start_time is less than end_time
+    if (formattedStartTime >= formattedEndTime) {
+      return res.status(400).json({ error: "End time must be greater than start time" });
+    }
 
     // Retrieve meeting ID from request parameters
     const meetingId = req.params.meetingId;
@@ -1211,36 +1227,43 @@ app.put("/admin/meetings/update/:meetingId", async (req, res) => {
       fieldsToUpdate.push("meeting_password = ?");
       valuesToUpdate.push(hashedPassword);
     }
-
+    if (formattedStartTime) {
+      fieldsToUpdate.push("start_time = ?");
+      valuesToUpdate.push(formattedStartTime);
+    }
+    if (formattedEndTime) {
+      fieldsToUpdate.push("end_time = ?");
+      valuesToUpdate.push(formattedEndTime);
+    }
     if (fieldsToUpdate.length === 0) {
       return res.status(400).json({ error: "No fields to update." });
     }
 
-    // Check if the meeting username already exists
-    if (meetingUsername) {
-      connection.query(
-        "SELECT * FROM Meetings WHERE meeting_username = ? AND admin_username != ?",
-        [meetingUsername, adminUsername],
-        (err, results) => {
-          if (err) {
-            console.error("Error checking meeting username:", err);
-            return res.status(500).json({
-              error: "An error occurred while updating meeting details.",
-            });
-          }
+// Check if the meeting username already exists for any admin
+if (meetingUsername) {
+  connection.query(
+    "SELECT * FROM Meetings WHERE meeting_username = ? AND meeting_id != ?",
+    [meetingUsername, meetingId],
+    (err, results) => {
+      if (err) {
+        console.error("Error checking meeting username:", err);
+        return res.status(500).json({
+          error: "An error occurred while updating meeting details.",
+        });
+      }
 
-          if (results.length > 0) {
-            return res.status(400).json({ error: "Meeting username already exists." });
-          }
+      if (results.length > 0) {
+        return res.status(400).json({ error: "Meeting username already exists for another meeting." });
+      }
 
-          // Proceed to update the meeting details
-          updateMeetingDetails();
-        }
-      );
-    } else {
-      // Proceed to update the meeting details if meeting username is not provided
+      // Proceed to update the meeting details
       updateMeetingDetails();
     }
+  );
+} else {
+  // Proceed to update the meeting details if meeting username is not provided
+  updateMeetingDetails();
+}
 
     function updateMeetingDetails() {
       // Add adminUsername and meetingId to the values
@@ -3924,7 +3947,7 @@ const formatTime = (time) => {
   return `${hours}:${minutes}`;
 };
 
-// Endpoint to send days, start time, end time, and meeting username
+// Endpoint to send days, start time, end time, and meeting username not usefull now.
 // app.post("/meeting/add-schedule", (req, res) => {
 //   const { meetingId, selectedDays, startTime, endTime } = req.body;
 

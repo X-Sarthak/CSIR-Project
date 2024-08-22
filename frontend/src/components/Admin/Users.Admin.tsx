@@ -25,9 +25,9 @@ function Users() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [searchText, setSearchText] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all"); // New state for the select dropdown
+  const [selectedCategory, setSelectedCategory] = useState<string>("Not Selected"); // New state for the select dropdown
   const [loading, setLoading] = useState(false);
-  const navigator = useNavigate();
+  const navigator = useNavigate(); 
 
   useEffect(() => {
     const checkSession = async () => {
@@ -228,6 +228,11 @@ const handlePrintClick = () => {
               <AdminSidebar />
             </div>
             <div className="flex-1 border-l border-black bg-gray-400/50 flex flex-col">
+            <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5 mb-2">
+                <h1 className="text-xl font-serif text-center text-white">
+                   Users
+                </h1>
+              </div>
               {adminDetails && (
                 <div className="bg-white border-t border-r px-2 py-2 border-b border-black flex items-center">
                   <label className="block text-sm font-medium text-gray-700 ml-2 mr-2">
@@ -259,7 +264,6 @@ const handlePrintClick = () => {
                     <option value="division">Division</option>
                     <option value="designation">Designation</option>
                   </select>
-
                   {/* Search Email Input */}
                   <input
                     type="text"
@@ -294,7 +298,6 @@ const handlePrintClick = () => {
                     </button>
                 </div>
               )}
-
               {showUsersForm && (
                 <UsersCreateForm onClose={() => setShowUsersForm(false)} />
               )}
