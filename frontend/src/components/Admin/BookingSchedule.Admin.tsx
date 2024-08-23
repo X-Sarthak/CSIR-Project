@@ -191,11 +191,13 @@ function BookingSchedule() {
   };
 
   const handleResetClick = () => {
-    setMeetingDetails([]); // Clear data if no meeting is selected
-    setFilterOption("");
-    setSearchTerm("");
-    setItemsPerPage(10);
+    setMeetingDetails([]);  // Clear the meeting details
+    setFilterOption("");  // Clear the filter option
+    setSearchTerm("");  // Clear the search term
+    setItemsPerPage(20);  // Reset items per page to default
+    setSelectedMeeting("");  // Reset the selected meeting
   };
+  
 
   return (
     <>
@@ -221,6 +223,7 @@ function BookingSchedule() {
                   <div className="flex items-center ml-5">
                     <select
                       className="border border-gray-300 px-2 py-1 rounded-md"
+                      value={filterOption}  // Bind value to filterOption state
                       onChange={(e) => setFilterOption(e.target.value)} // Update to your dropdown handler
                     >
                       <option value="">Not Selected</option>
@@ -262,6 +265,7 @@ function BookingSchedule() {
                   </label>
                   <select
                       className="border border-gray-300 px-2.5 py-1 ml-2 rounded-md"
+                      value={selectedMeeting}  // Bind value to selectedMeeting state
                       onChange={handleMeetingChange}
                   >
                     <option value="">Not Selected</option>

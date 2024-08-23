@@ -1195,12 +1195,14 @@ app.put("/admin/meetings/update/:meetingId", async (req, res) => {
     const decoded = jwt.verify(token, secretKey);
     const adminUsername = decoded.admin_username;
 
-    const formattedStartTime = formatTime(startTime);
-    const formattedEndTime = formatTime(endTime);
+    const formattedStartTime = startTime ? formatTime(startTime) : "";
+    const formattedEndTime = endTime ? formatTime(endTime) : "";
 
-    // Check if start_time is less than end_time
-    if (formattedStartTime >= formattedEndTime) {
-      return res.status(400).json({ error: "End time must be greater than start time" });
+    // Check if both startTime and endTime are empty strings, allow it to pass
+    if ((formattedStartTime === "" && formattedEndTime === "") || (formattedStartTime && formattedEndTime && formattedStartTime < formattedEndTime)) {
+      // Valid cases: both empty or startTime < endTime
+    } else {
+      return res.status(400).json({ error: "End time must be greater than start time, or both must be empty." });
     }
 
     // Retrieve meeting ID from request parameters
@@ -1209,6 +1211,7 @@ app.put("/admin/meetings/update/:meetingId", async (req, res) => {
     // Build the fields to update
     let fieldsToUpdate = [];
     let valuesToUpdate = [];
+    let shouldDeleteSchedule = false;
 
     if (roomName) {
       fieldsToUpdate.push("room_name = ?");
@@ -1230,40 +1233,70 @@ app.put("/admin/meetings/update/:meetingId", async (req, res) => {
     if (formattedStartTime) {
       fieldsToUpdate.push("start_time = ?");
       valuesToUpdate.push(formattedStartTime);
+      shouldDeleteSchedule = true; // Mark that schedule needs to be deleted if start_time changes
     }
     if (formattedEndTime) {
       fieldsToUpdate.push("end_time = ?");
       valuesToUpdate.push(formattedEndTime);
+      shouldDeleteSchedule = true; // Mark that schedule needs to be deleted if end_time changes
     }
+
     if (fieldsToUpdate.length === 0) {
       return res.status(400).json({ error: "No fields to update." });
     }
 
-// Check if the meeting username already exists for any admin
-if (meetingUsername) {
-  connection.query(
-    "SELECT * FROM Meetings WHERE meeting_username = ? AND meeting_id != ?",
-    [meetingUsername, meetingId],
-    (err, results) => {
-      if (err) {
-        console.error("Error checking meeting username:", err);
-        return res.status(500).json({
-          error: "An error occurred while updating meeting details.",
-        });
-      }
+    // Check if the meeting username already exists for any other meeting
+    if (meetingUsername) {
+      connection.query(
+        "SELECT * FROM Meetings WHERE meeting_username = ? AND meeting_id != ?",
+        [meetingUsername, meetingId],
+        (err, results) => {
+          if (err) {
+            console.error("Error checking meeting username:", err);
+            return res.status(500).json({
+              error: "An error occurred while updating meeting details.",
+            });
+          }
 
-      if (results.length > 0) {
-        return res.status(400).json({ error: "Meeting username already exists for another meeting." });
-      }
+          if (results.length > 0) {
+            return res.status(400).json({ error: "Meeting username already exists for another meeting." });
+          }
 
-      // Proceed to update the meeting details
-      updateMeetingDetails();
+          // Proceed to delete schedule if needed and then update the meeting details
+          if (shouldDeleteSchedule) {
+            deleteMeetingSchedule();
+          } else {
+            updateMeetingDetails();
+          }
+        }
+      );
+    } else {
+      // Proceed to delete schedule if needed and then update the meeting details
+      if (shouldDeleteSchedule) {
+        deleteMeetingSchedule();
+      } else {
+        updateMeetingDetails();
+      }
     }
-  );
-} else {
-  // Proceed to update the meeting details if meeting username is not provided
-  updateMeetingDetails();
-}
+
+    function deleteMeetingSchedule() {
+      // Delete the existing meeting schedule
+      connection.query(
+        "DELETE FROM MeetingSchedule WHERE meeting_id = ?",
+        [meetingId],
+        (err, result) => {
+          if (err) {
+            console.error("Error deleting meeting schedule:", err);
+            return res.status(500).json({
+              error: "An error occurred while deleting meeting schedule.",
+            });
+          }
+
+          // Proceed to update the meeting details after deleting the schedule
+          updateMeetingDetails();
+        }
+      );
+    }
 
     function updateMeetingDetails() {
       // Add adminUsername and meetingId to the values

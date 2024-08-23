@@ -24,9 +24,9 @@ function EditForm({ meeting, onClose }: Props) {
     roomName: meeting.room_name || "",
     authorityName: meeting.authority_name || "",
     meetingUsername: meeting.meeting_username || "",
-    meetingPassword: meeting.meeting_password || "",
-    startTime: meeting.start_time ||"",
-    endTime: meeting.end_time ||"",
+    meetingPassword: "",
+    startTime: "" ,
+    endTime: "" ,
     
   });
     const [loading, setLoading] = useState(false);
@@ -199,7 +199,6 @@ function EditForm({ meeting, onClose }: Props) {
                   value={formData.startTime}
                   onChange={handleChange}
                   className="rounded-md border border-black p-2 w-full focus:outline-none focus:border-blue-500"
-                  required
                 />
               </div>
               <div className="flex-1 ml-2">
@@ -213,7 +212,6 @@ function EditForm({ meeting, onClose }: Props) {
                   value={formData.endTime}
                   onChange={handleChange}
                   className="rounded-md border border-black p-2 w-full focus:outline-none focus:border-blue-500"
-                  required
                 />
               </div>
             </div>
