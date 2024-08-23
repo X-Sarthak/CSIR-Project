@@ -152,7 +152,7 @@ function AdminDashboard() {
                     ))}
                   </div>
                   {/* Pagination Controls */}
-                  <div className="flex justify-between items-center mt-2 mb-2 px-1">
+                  <div className="flex justify-between items-center mt-4 mb-2 px-1">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1 || totalPages === 0}

@@ -258,12 +258,142 @@ function LocalMeetingInfo() {
     setSelectedLab("All Selected");
     setItemsPerPage(10);
   };
+  const handlePrintClickWrapper = (viewType: "summary" | "detailed") => () => {
+    handlePrintClick(viewType);
+  };
+  const handlePrintClick = (viewType: "summary" | "detailed") => {
+    if (vcInformation.length === 0) {
+      toast.info("No data available to export.");
+      return;
+    }
 
-  const handlePrintClick = () => {
-    const ws = XLSX.utils.json_to_sheet(vcInformation);
+    // Define headers for both views
+    const summaryHeaders = [
+      "ID",
+      "Meeting Date",
+      "Lab/Institution",
+      "Requester Name",
+      "VC Venue Name",
+      "Request Date",
+      "Start Time",
+      "End Time",
+      "Lab/Institution Far Sight",
+      "Subject",
+    ];
+
+    const detailedHeaders = [
+      "ID",
+      "Meeting Date",
+      "Lab/Institution",
+      "Requester Name",
+      "Designation",
+      "Division",
+      "Contact Details",
+      "VC Venue Name",
+      "Request Date",
+      "Start Time",
+      "End Time",
+      "Parties",
+      "Lab/Institution Far Sight",
+      "Person Name",
+      "Person Contact",
+      "Location",
+      "Connectivity Details",
+      "Subject",
+      "Members",
+      "Presentation Required",
+      "Recording Required",
+      "Remarks",
+    ];
+
+    // Choose headers based on viewType
+    const headers = viewType === "summary" ? summaryHeaders : detailedHeaders;
+
+    // Map vcInformation to include headers and data
+    const formattedData = vcInformation.map((vcInfo: any) => {
+      const data: any = {
+        ID: vcInfo.id || "",
+        "Meeting Date": vcInfo.meetingDate || "",
+        "Lab/Institution": vcInfo.labOrInstitution || "",
+        "Requester Name": vcInfo.requesterName || "",
+        "VC Venue Name": vcInfo.vcVenueName || "",
+        "Request Date": vcInfo.requestDate || "",
+        "Start Time": vcInfo.startTime || "",
+        "End Time": vcInfo.endTime || "",
+        "Lab/Institution Far Sight": vcInfo.labOrInstitutionFarSight || "",
+        Subject: vcInfo.subject || "",
+      };
+
+      if (viewType === "detailed") {
+        data["Designation"] = vcInfo.designation || "";
+        data["Division"] = vcInfo.division || "";
+        data["Contact Details"] = vcInfo.contactDetails || "";
+        data["Parties"] = vcInfo.parties || "";
+        data["Person Name"] = vcInfo.personName || "";
+        data["Person Contact"] = vcInfo.personContact || "";
+        data["Location"] = vcInfo.location || "";
+        data["Connectivity Details"] = vcInfo.connectivityDetails || "N/A";
+        data["Members"] = vcInfo.members || "";
+        data["Presentation Required"] = vcInfo.presentationRequired === 1 ? "Yes" : "No";
+        data["Recording Required"] = vcInfo.recordingRequired === 1 ? "Yes" : "No";
+        data["Remarks"] = vcInfo.remarks || "N/A";
+        
+      }
+
+      return data;
+    });
+
+    // Create worksheet with custom headers
+    const ws = XLSX.utils.json_to_sheet(formattedData);
+
+    // Set column widths (adjusted for specific headers)
+    const columnWidths = headers.map((header) => {
+      switch (header) {
+        case "ID":
+          return { width: 10 };
+        case "Meeting Date":
+        case "Start Time":
+        case "End Time":
+        case "Request Date":
+          return { width: 15 };
+        case "Lab/Institution":
+        case "VC Venue Name":
+        case "Lab/Institution Far Sight":
+        case "Location":
+          return { width: 30 };
+        case "Requester Name":
+        case "Person Name":
+        case "Division":
+          return { width: 20 };
+        case "Contact Details":
+        case "Person Contact":
+        case "Connectivity Details":
+          return { width: 25 };
+        case "Parties":
+        case "Members":
+        case "Presentation Required":
+        case "Recording Required":
+        case "Remarks":
+          return { width: 20 };
+        case "Subject":
+          return { width: 25 };
+        default:
+          return { width: 15 }; // Default width for any unspecified columns
+      }
+    });
+
+    ws["!cols"] = columnWidths;
+
+    // Create workbook and append worksheet
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Local Meeting Information");
-    XLSX.writeFile(wb, "LocalMeetingInformation.xlsx");
+
+    // Generate Excel file and trigger download
+    const fileName =
+      viewType === "summary"
+        ? "LocalMeetingSummary.xlsx"
+        : "LocalMeetingDetailed.xlsx";
+    XLSX.writeFile(wb, fileName);
   };
 
   const months = [
@@ -410,7 +540,8 @@ function LocalMeetingInfo() {
                       </button>
                       <button
                         className="px-4 py-2 ml-2 bg-blue-500 text-white font-bold rounded"
-                        onClick={handlePrintClick}
+                        // In your component JSX, use the wrapper function
+                        onClick={handlePrintClickWrapper(viewMode)} // Pass the current viewMode here
                       >
                         Print
                       </button>
@@ -559,7 +690,7 @@ function LocalMeetingInfo() {
                               </th>
                               <th className="border border-gray-300 px-16 py-1">
                                 Remarks
-                              </th> 
+                              </th>
                             </>
                           )}
                         </tr>
