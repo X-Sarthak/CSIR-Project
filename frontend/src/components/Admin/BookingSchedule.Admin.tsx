@@ -184,11 +184,68 @@ function BookingSchedule() {
   };
 
   const handlePrintClick = () => {
-    const ws = XLSX.utils.json_to_sheet(meetingDetails);
+    if (meetingUsernames.length === 0) {
+      toast.info("No meeting data available to export.");
+      return;
+    }
+  
+    // Define custom headers
+    const headers = [
+      "User Email",
+      "Meeting Title",
+      "Room Name",
+      "Meeting Date",
+      "Start Time",
+      "End Time",
+      "Meeting Mode",
+      "Meeting Link",
+      "Added By",
+      "Status"
+    ];
+  
+    // Ensure you're using the MeetingDetail type
+    const meetingsWithCustomHeaders = meetingDetails.map((detail: MeetingDetail) => ({
+      "User Email": detail.user_email || "",
+      "Meeting Title": detail.meeting_title || "",
+      "Room Name": detail.room_name || "",
+      "Meeting Date": detail.formatted_meeting_date || "",
+      "Start Time": detail.formatted_start_time || "",
+      "End Time": detail.formatted_end_time || "",
+      "Meeting Mode": detail.meeting_option || "",
+      "Meeting Link": detail.meeting_link === null ? "N/A" : "",
+      "Added By": detail.added_by || "",
+      "Status": detail.request_status === 0 ? "Rejected" :
+                detail.request_status === null ? "Pending" :
+                detail.request_status === 1 ? "Accepted" : ""
+    }));
+  
+    // Create worksheet with custom headers
+    const ws = XLSX.utils.json_to_sheet(meetingsWithCustomHeaders, { header: headers });
+  
+    // Set column widths (optional)
+    ws["!cols"] = [
+      { width: 25 }, // User Email
+      { width: 30 }, // Meeting Title
+      { width: 20 }, // Room Name
+      { width: 20 }, // Meeting Date
+      { width: 15 }, // Start Time
+      { width: 15 }, // End Time
+      { width: 20 }, // Meeting Mode
+      { width: 30 }, // Meeting Link
+      { width: 20 }, // Added By
+      { width: 15 }  // Status
+    ];
+  
+    // Create workbook and append worksheet
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Meeting Booking Schedule Information");
-    XLSX.writeFile(wb, "BookingSchedule.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "Booking Schedule");
+  
+    // Generate Excel file and trigger download
+    XLSX.writeFile(wb, "Meetings_Booking_Schedule.xlsx");
   };
+  
+  
+  
 
   const handleResetClick = () => {
     setMeetingDetails([]);  // Clear the meeting details

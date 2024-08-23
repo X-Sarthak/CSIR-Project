@@ -1331,6 +1331,66 @@ app.put("/admin/meetings/update/:meetingId", async (req, res) => {
   }
 });
 
+//filter for meeting room search results
+app.post("/admin/meetings/search", (req, res) => {
+  // Extract the token from session
+  const token = req.session.token;
+
+  // Check if token is present
+  if (!token) {
+    return res.status(401).json({ error: "Admin not logged in" });
+  }
+
+  // Decode token to get admin username
+  const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      console.error("Error decoding token:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    const adminUsername = decoded.admin_username;
+    const { text, category } = req.body;
+
+    // Validate the text
+    if (!text) {
+      return res.status(400).json({ error: "Text is required" });
+    }
+
+    // Build the query based on the selected category
+    let query = "SELECT meeting_id, room_name, authority_name, meeting_username, meeting_status, meeting_days, DATE_FORMAT(start_time, '%H:%i') AS start_time, DATE_FORMAT(end_time, '%H:%i') AS end_time FROM Meetings WHERE admin_username = ? AND ";
+    
+    let queryParams = [adminUsername];
+
+    switch (category) {
+      case "Room Name":
+        query += "room_name LIKE ?";
+        queryParams.push(`%${text}%`);
+        break;
+      case "Approver Name":
+        query += "authority_name LIKE ?";
+        queryParams.push(`%${text}%`);
+        break;
+      default:
+        query += "meeting_username LIKE ?";
+        queryParams.push(`%${text}%`);
+        break;
+    }
+
+    // Query the database with the constructed query and parameters
+    connection.query(query, queryParams, (error, meetings) => {
+      if (error) {
+        console.error("Error fetching meetings:", error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+
+      // Respond with meeting details
+      res.json(meetings);
+    });
+  });
+});
+
+
 
 //admin meeting finished successfully
 

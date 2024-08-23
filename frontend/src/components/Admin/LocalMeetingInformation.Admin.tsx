@@ -559,7 +559,7 @@ function LocalMeetingInfo() {
                               </th>
                               <th className="border border-gray-300 px-16 py-1">
                                 Remarks
-                              </th>
+                              </th> 
                             </>
                           )}
                         </tr>

@@ -165,7 +165,7 @@ function Users() {
       });
       setUsers(response.data);
     } catch (error) {
-      toast.info("Select the Category");
+      toast.info("Select the Category and Text");
       console.error("Error searching users:", error);
     } finally {
       setLoading(false);
@@ -258,8 +258,8 @@ const handlePrintClick = () => {
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="border border-gray-300 px-2 py-1 rounded-md ml-2"
                   >
-                      <option value=""> Not Selected</option>
-                    <option value="email"> Email</option>
+                      <option value="">Not Selected</option>
+                    <option value="email">Email</option>
                     <option value="name">Name</option>
                     <option value="division">Division</option>
                     <option value="designation">Designation</option>

@@ -181,10 +181,26 @@ function MeetingRoom() {
   };
 
 
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.post(`/admin/meetings/search`, {
+        category: selectedCategory,
+        text: searchText,
+      });
+      setMeetings(response.data);
+    } catch (error) {
+      toast.info("Select the Category and Text");
+      console.error("Error searching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleResetClick = () => {
     setMeetings([]); // Clear the users data
-    // setSelectedCategory(""); // Reset the category selection to default
-    // setSearchText(""); // Clear the search text input
+    setSelectedCategory(""); // Reset the category selection to default
+    setSearchText(""); // Clear the search text input
     setItemsPerPage(10); // Reset items per page to the default value
     fetchMeetingDetails(); // Refetch all users to reset the table
   };
@@ -211,7 +227,7 @@ function MeetingRoom() {
       { width: 20 }, // Room Name
       { width: 25 }, // Approver Name
       { width: 30 }, // Meeting Username
-      { width: 35 }, // Meeting Available Days
+      { width: 50 }, // Meeting Available Days
     ];
 
     // Create workbook and append worksheet
@@ -219,7 +235,7 @@ function MeetingRoom() {
     XLSX.utils.book_append_sheet(wb, ws, "Meetings");
 
     // Generate Excel file and trigger download
-    XLSX.writeFile(wb, "Meetings-CSIR Data.xlsx");
+    XLSX.writeFile(wb, "Meetings_CSIR_Data.xlsx");
   };
 
 
@@ -301,7 +317,7 @@ function MeetingRoom() {
                     placeholder="Search"
                   />
                   <button
-                    // onClick={handleSearch}
+                    onClick={handleSearch}
                     className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 border border-black rounded-md ml-2"
                   >
                     Search
