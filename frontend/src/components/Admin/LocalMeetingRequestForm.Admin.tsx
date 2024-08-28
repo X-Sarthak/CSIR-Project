@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import axios from "axios";
 import AdminHeader from "./Header.Admin";
@@ -92,7 +93,7 @@ function LocalMeetingRequest() {
     if (dateParam) {
       setRequestDate(dateParam);
     }
-  }, [location.search]);
+  }, [location.search, locationHook.search]);
 
   const fetchAdminDetails = async () => {
     try {
@@ -414,7 +415,7 @@ function LocalMeetingRequest() {
       {loading && <Spinner />}
       {validSession && (
         <div>
-          <AdminHeader dashboardType="Admin" />
+          <AdminHeader dashboardType="Local/Vc Form" />
           <div className="flex min-h-screen">
             <div className="px-2 py-2 pr-4 bg-gray-400/50">
               <AdminSidebar />
@@ -795,7 +796,7 @@ function LocalMeetingRequest() {
                       Members:<span className="text-red-500">*</span>
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="Enter members"
                       value={members}
                       onChange={(e) => setMembers(e.target.value)}
@@ -913,7 +914,7 @@ function LocalMeetingRequest() {
               </form>
             </div>
           </div>
-          <footer className="text-center px-4 py-2 border-t border-black">
+          <footer className="text-center -mb-6 px-4 py-2 border-t border-black">
             Copyright &copy; {new Date().getFullYear()} Concept. All rights
             reserved.
           </footer>

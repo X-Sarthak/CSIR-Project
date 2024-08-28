@@ -261,7 +261,7 @@ function BookingSchedule() {
       {loading && <Spinner />}
       {validSession && (
         <div>
-          <AdminHeader dashboardType="Admin" />
+          <AdminHeader dashboardType="Booking Details" />
           <div className="flex min-h-screen">
             <div className="px-2 py-2 pr-4 bg-gray-400/50">
               <AdminSidebar />

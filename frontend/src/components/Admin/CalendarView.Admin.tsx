@@ -117,7 +117,7 @@ function CalendarView() {
       // Only proceed if it's a new date selection, not a month change
       setSelectedValue(newValue);
       const formattedDate = newValue.format("YYYY-MM-DD");
-      navigate(`/login/admin/LocalVCconferencingform?date=${formattedDate}`);
+      navigate(`/login/admin/local-vc-conferencing-form?date=${formattedDate}`);
     } else {
       // Just update the selected value if it's a month change
       setSelectedValue(newValue);
@@ -169,7 +169,7 @@ function CalendarView() {
       {loading && <Spinner />}
       {validSession && (
         <div>
-          <AdminHeader dashboardType="Admin" />
+          <AdminHeader dashboardType="Calendar" />
           <div className="flex min-h-screen">
             <div className="px-2 py-2 pr-4 bg-gray-400/50">
               <AdminSidebar />

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import AdminHeader from "./Header.Admin";
 import AdminSidebar from "./Sidebar.Admin";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Spinner from "../Utility/Spinner.Utility";
 import { Select } from "antd";
@@ -15,7 +15,7 @@ function LocalMeetingEdit() {
   const [adminDetails, setAdminDetails] = useState<{
     admin_username: string;
   } | null>(null);
-
+  const [meetingId, setMeetingId] = useState("");
   const [requestDate, setRequestDate] = useState<string>("");
   const [labOrInstitution, setLabOrInstitution] = useState<string>("");
   const [manualInstitution, setManualInstitution] = useState<string>("");
@@ -50,7 +50,6 @@ function LocalMeetingEdit() {
   const [agree, setAgree] = useState<boolean>(false);
 
   const navigator = useNavigate();
-  const locationHook = useLocation(); // Renamed to avoid conflict with 'location' variable
 
   useEffect(() => {
     const checkSession = async () => {
@@ -84,27 +83,71 @@ function LocalMeetingEdit() {
     checkSession();
   }, [navigator]);
 
-  useEffect(() => {
-    // Parse query parameters when component mounts or location changes
-    const formattedDate = new URLSearchParams(locationHook.search);
-    const dateParam = formattedDate.get("date");
-
-    if (dateParam) {
-      setRequestDate(dateParam);
-    }
-  }, [location.search]);
-
   const fetchAdminDetails = async () => {
     try {
-      const response = await axios.get(
-        "/admin/details",
-        {}
-      );
+      const response = await axios.get("/admin/details", {});
       setAdminDetails(response.data);
     } catch (error) {
       console.error("Error fetching admin details:", error);
     }
   };
+
+  const fetchFormData = async (meetingId: string): Promise<void> => {
+    try {
+      // Fetch data from the API
+      const response = await axios.get<{ [key: string]: any }>(
+        `/admin/vcdata?meetingId=${meetingId}`
+      );
+      const data = response.data;
+
+      // Ensure the data received is of the expected type
+      
+      if (data && Object.keys(data).length > 0) {
+        // Update state with fetched data
+        setRequestDate(data.requestDate || "");
+        setLabOrInstitution(data.labOrInstitution || "");
+        setRequesterName(data.requesterName || "");
+        setDesignation(data.designation || "");
+        setDivision(data.division || "");
+        setContactDetails(data.contactDetails || "");
+        setVcVenueName(data.vcVenueName || "");
+        setMeetingDate(data.meetingDate || "");
+        setStartTime(data.startTime || "");
+        setEndTime(data.endTime || "");
+        setParties(data.parties || "");
+        setLabOrInstitutionFarSight(
+          data.labOrInstitutionFarSight
+            ? data.labOrInstitutionFarSight.split(", ")
+            : []
+        );
+        setPersonName(data.personName || "");
+        setPersonContact(data.personContact || "");
+        setLocation(data.location || "");
+        setConnectivityDetails(data.connectivityDetails || "");
+        setSubject(data.subject || "");
+        setMembers(data.members || "");
+        setPresentationRequired(data.presentationRequired || false);
+        setRecordingRequired(data.recordingRequired || false);
+        setRemarks(data.remarks || "");
+        setAgree(data.agree || false);
+        toast.success("Fetch Successfully");
+      } else {
+        toast.error("No data found for the selected date.");
+      }
+    } catch (error) {
+      console.error("Error fetching form data:", error);
+      toast.error("Error fetching form data");
+    }
+  };
+
+  const handleSearch = () => {
+    if (meetingId) {
+      fetchFormData(meetingId);
+    } else {
+      toast.error("Please provide a Meeting ID.");
+    }
+  };
+  
 
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -116,6 +159,7 @@ function LocalMeetingEdit() {
 
     try {
       const formData = {
+        meetingId,
         requestDate,
         labOrInstitution,
         manualInstitution,
@@ -149,7 +193,7 @@ function LocalMeetingEdit() {
       };
 
       await axios.post(
-        "/admin/vc/create",
+        "/admin/vc/update",
         formData,
         { withCredentials: true } // Ensure credentials are sent with the request if using cookies for session management
       );
@@ -157,6 +201,7 @@ function LocalMeetingEdit() {
       toast.success("Form submission successful");
 
       // Clear form fields after successful submission
+      setMeetingId("");
       setRequestDate("");
       setLabOrInstitution("");
       setManualInstitution("");
@@ -185,13 +230,19 @@ function LocalMeetingEdit() {
       setAgree(false);
       setLoading(false);
 
-      // Optionally, reset any other form state or redirect to another page on success
-    } catch (error) {
-      toast.error("Make Sure Form is Correctly filled");
-      // Handle error state or notify user of failure
-      setLoading(false);
+    // Optionally, reset any other form state or redirect to another page on success
+  } catch (error: any) {
+    setLoading(false);
+
+    if (error.response && error.response.status === 400) {
+      // Specific error message for end time greater than start time
+      toast.error("End time cannot be earlier than start time. Please correct the times.");
+    } else {
+      // General error message for other errors
+      toast.error("Make sure the form is correctly filled.");
     }
-  };
+  }
+};
 
   const institutions = [
     "ACSIR-Academy of Scientific and Innovative Research",
@@ -408,19 +459,45 @@ function LocalMeetingEdit() {
       {loading && <Spinner />}
       {validSession && (
         <div>
-          <AdminHeader dashboardType="Admin" />
+          <AdminHeader dashboardType="Local/Vc Edit Form" />
           <div className="flex min-h-screen">
             <div className="px-2 py-2 pr-4 bg-gray-400/50">
               <AdminSidebar />
             </div>
             <div className="flex-1 border-l border-black bg-white flex flex-col">
               {adminDetails && (
-              <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5">
-              <h1 className="text-xl font-serif text-center text-white">
-                Local/Vc Form Edit
-              </h1>
+                <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5">
+                  <h1 className="text-xl font-serif text-center text-white">
+                    Local/Vc Form Edit
+                  </h1>
                 </div>
               )}
+              <div className="flex flex-col justify-between p-3 bg-gray-200 border-black space-y-3">
+                <div>
+                  <label
+                    htmlFor="meetingId"
+                    className="block mb-2 text-xl font-bold underline"
+                  >
+                    Meeting ID:
+                  </label>
+                  <input
+                    type="number"
+                    id="meetingId"
+                    placeholder="Enter Meeting ID"
+                    value={meetingId}
+                    onChange={(e) => setMeetingId(e.target.value)}
+                    className="border border-gray-300 px-1 py-2 w-36 rounded-md"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSearch}
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-serif px-12 py-2 mt-2 ml-2 rounded-md transition duration-300 ease-in-out"
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
               {/* Form Section */}
               <form
                 onSubmit={handleFormSubmit}
@@ -432,8 +509,8 @@ function LocalMeetingEdit() {
                     Request Date:
                   </label>
                   <label className="block mb-1 font-medium">
-                      Date:<span className="text-red-500">*</span>
-                    </label>
+                    Date:<span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="date"
                     value={requestDate}
@@ -578,9 +655,9 @@ function LocalMeetingEdit() {
                     Date & Time of the VC/Local Meeting:
                   </label>
                   <label className="block mb-1 font-medium">
-                      Date:
-                      <span className="text-red-500">*</span>
-                    </label>
+                    Date:
+                    <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="date"
                     value={meetingDate}
@@ -789,7 +866,7 @@ function LocalMeetingEdit() {
                       Members:<span className="text-red-500">*</span>
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="Enter members"
                       value={members}
                       onChange={(e) => setMembers(e.target.value)}
@@ -895,7 +972,7 @@ function LocalMeetingEdit() {
                 <div className="mt-1 ml-2">
                   <button
                     type="submit"
-                    className={`bg-blue-500 hover:bg-blue-600 text-white font-serif px-10 py-2 mt-2 rounded-md transition duration-300 ease-in-out ${
+                    className={`bg-blue-500 hover:bg-blue-600 text-white font-serif px-12 py-2 mt-2 rounded-md transition duration-300 ease-in-out ${
                       !agree ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                     disabled={!agree}
@@ -907,7 +984,7 @@ function LocalMeetingEdit() {
               </form>
             </div>
           </div>
-          <footer className="text-center px-4 py-2 border-t border-black">
+          <footer className="text-center -mb-6 px-4 py-2 border-t border-black">
             Copyright &copy; {new Date().getFullYear()} Concept. All rights
             reserved.
           </footer>

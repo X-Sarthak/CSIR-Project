@@ -2998,6 +2998,238 @@ app.post('/admin/laboratory/date-range-lab-detail', (req, res) => {
   }
 });
 
+//To fetch the data of vc form by meeting date
+app.get('/admin/vcdata', (req, res) => {
+  try {
+    // Retrieve token from session
+    const token = req.session.token;
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    // Decode token to get admin_username
+    const decodedToken = jwt.decode(token);
+    const adminUsername = decodedToken?.admin_username;
+
+    if (!adminUsername) {
+      return res.status(400).json({ error: 'Admin username not found in token' });
+    }
+
+    // Retrieve date and meetingId from query parameters
+    const meetingId = req.query.meetingId;
+
+    if (!meetingId) {
+      return res.status(400).json({ error: 'Date and Meeting ID parameters are required' });
+    }
+
+    // Query to fetch data based on admin_username, meetingDate, and meetingId
+    const query = `
+      SELECT 
+        DATE_FORMAT(requestDate,'%Y-%m-%d') AS requestDate,
+        labOrInstitution,
+        requesterName,
+        designation,
+        division,
+        contactDetails,
+        vcVenueName,
+        DATE_FORMAT(meetingDate, '%Y-%m-%d') AS meetingDate,
+        startTime,
+        endTime,
+        parties,
+        labOrInstitutionFarSight,
+        personName,
+        personContact,
+        location,
+        connectivityDetails,
+        subject,
+        members,
+        presentationRequired,
+        recordingRequired,
+        remarks
+      FROM VCinformation
+      WHERE admin_username = ? AND id = ?;
+    `;
+
+    connection.query(query, [adminUsername, meetingId], (error, results) => {
+      if (error) {
+        console.error('Error fetching VC data:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      // Return results as JSON response
+      res.status(200).json(results[0] || {});
+    });
+  } catch (error) {
+    console.error('Error querying database:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//for update Local/Vc Form by meeting id
+app.post("/admin/vc/update", async (req, res) => {
+  const {
+    requestDate,
+    labOrInstitution,
+    manualInstitution,
+    requesterName,
+    designation,
+    division,
+    contactDetails,
+    vcVenueName,
+    vcVenueManualName,
+    meetingDate,
+    startTime,
+    endTime,
+    parties,
+    partiesManual,
+    labOrInstitutionFarSight,
+    manualInstitutionFarSight,
+    personName,
+    personContact,
+    location,
+    connectivityDetails,
+    subject,
+    members,
+    presentationRequired,
+    recordingRequired,
+    remarks,
+    agree,
+    meetingId, // Required for update
+  } = req.body;
+
+  // Retrieve and decode admin username from session token
+  const token = req.session.token;
+  if (!token) {
+    return res.status(401).json({ error: "Admin not logged in" });
+  }
+  const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
+  const decoded = jwt.verify(token, secretKey);
+  const adminUsername = decoded.admin_username;
+
+  // Array to store error messages for missing fields
+  const errors = [];
+
+  // Check for missing required fields
+  if (!requestDate) errors.push("Request Date is required");
+  if (!labOrInstitution) errors.push("Lab/Institution is required");
+  if (!requesterName) errors.push("Requester Name is required");
+  if (!designation) errors.push("Designation is required");
+  if (!division) errors.push("Division is required");
+  if (!contactDetails) errors.push("Contact Details are required");
+  if (!vcVenueName) errors.push("VC Venue Name is required");
+  if (!meetingDate) errors.push("Meeting Date is required");
+  if (!startTime) errors.push("Start Time is required");
+  if (!endTime) errors.push("End Time is required");
+  if (!parties) errors.push("Parties are required");
+  if (!labOrInstitutionFarSight) errors.push("Far-Sight Lab/Institution is required");
+  if (!personName) errors.push("Person Name is required");
+  if (!personContact) errors.push("Person Contact is required");
+  if (!location) errors.push("Location is required");
+  if (!subject) errors.push("Subject is required");
+  if (!members) errors.push("Members are required");
+  if (!agree) errors.push("Agree checkbox must be checked");
+  if (!meetingId) errors.push("Meeting ID is required for updating");
+
+  // If there are any errors, return them
+  if (errors.length > 0) {
+    return res.status(400).json({ error: errors.join("; ") });
+  }
+
+  const formattedStartTime = formatTime(startTime);
+  const formattedEndTime = formatTime(endTime);
+
+  // Check if startTime is less than endTime
+  if (formattedStartTime >= formattedEndTime) {
+    return res.status(400).json({ error: "End time must be greater than start time" });
+  }
+
+  // Conditionally assign values based on presence of manualInstitutionFarSight and manualInstitution
+  let finalLabOrInstitutionFarSight = labOrInstitutionFarSight;
+  let finalLabOrInstitution = labOrInstitution;
+  let finalVcVenueName = vcVenueName;
+  let finalParties = parties;
+
+  if (manualInstitutionFarSight) {
+    finalLabOrInstitutionFarSight = manualInstitutionFarSight;
+  }
+  if (manualInstitution) {
+    finalLabOrInstitution = manualInstitution;
+  }
+  if (vcVenueManualName) {
+    finalVcVenueName = vcVenueManualName;
+  }
+  if (partiesManual) {
+    finalParties = partiesManual;
+  }
+
+  try {
+    // Update existing record
+    const sql = `
+      UPDATE VCinformation SET
+        requestDate = ?,
+        labOrInstitution = ?,
+        requesterName = ?,
+        designation = ?,
+        division = ?,
+        contactDetails = ?,
+        vcVenueName = ?,
+        meetingDate = ?,
+        startTime = ?,
+        endTime = ?,
+        parties = ?,
+        labOrInstitutionFarSight = ?,
+        personName = ?,
+        personContact = ?,
+        location = ?,
+        connectivityDetails = ?,
+        subject = ?,
+        members = ?,
+        presentationRequired = ?,
+        recordingRequired = ?,
+        remarks = ?
+      WHERE id = ? AND admin_username = ?
+    `;
+    const values = [
+      requestDate,
+      finalLabOrInstitution,
+      requesterName,
+      designation,
+      division,
+      contactDetails,
+      finalVcVenueName,
+      meetingDate,
+      formattedStartTime,
+      formattedEndTime,
+      finalParties,
+      finalLabOrInstitutionFarSight,
+      personName,
+      personContact,
+      location,
+      connectivityDetails,
+      subject,
+      members,
+      presentationRequired,
+      recordingRequired,
+      remarks,
+      meetingId,// ID for the record to update
+      adminUsername
+    ];
+
+    connection.query(sql, values, (error, results) => {
+      if (error) {
+        console.error("Error updating VC information:", error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+
+      // VC information successfully updated
+      return res.status(200).json({ message: "VC information updated successfully" });
+    });
+
+  } catch (error) {
+    console.error("Error updating VC information:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 //get the data of meeting for the calendar
 app.get('/admin/local/meeting/detail/calendar', (req, res) => {
