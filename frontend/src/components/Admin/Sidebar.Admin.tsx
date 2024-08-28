@@ -11,10 +11,11 @@ const items: SidebarItem[] = [
   { label: 'Dashboard', link: '/login/admin/dashboard' },
   { label: 'Meeting Room', link: '/login/admin/meeting-room' },
   { label: 'Users', link: '/login/admin/users' },
-  { label: 'Booking Details', link: '/login/admin/booking-details' },
-  { label: 'Local/VC Form', link: '/login/admin/LocalVCconferencingform' },
-  { label: 'Local/VC Details', link: '/login/admin/LocalVCconferencingDetails' },
-  { label: 'Calendar View', link: '/login/admin/CalendarView' },
+  { label: 'Booking Details', link: '/login/admin/booking-info' },
+  { label: 'Local/Vc Form', link: '/login/admin/local-vc-conferencing-form' },
+  { label: 'Local/Vc Info', link: '/login/admin/local-vc-conferencing-info' },
+  { label: 'Local/Vc Edit', link: '/login/admin/local-vc-conferencing-edit' },
+  { label: 'Calendar View', link: '/login/admin/calendar-view' },
 ];
 
 function AdminSidebar(): JSX.Element {

@@ -9,7 +9,7 @@ import { Select } from "antd";
 
 axios.defaults.withCredentials = true;
 
-function LocalMeetingRequest() {
+function LocalMeetingEdit() {
   const [validSession, setValidSession] = useState(false);
   const [loading, setLoading] = useState(false);
   const [adminDetails, setAdminDetails] = useState<{
@@ -185,19 +185,13 @@ function LocalMeetingRequest() {
       setAgree(false);
       setLoading(false);
 
-    // Optionally, reset any other form state or redirect to another page on success
-  } catch (error: any) {
-    setLoading(false);
-
-    if (error.response && error.response.status === 400) {
-      // Specific error message for end time greater than start time
-      toast.error("End time cannot be earlier than start time. Please correct the times.");
-    } else {
-      // General error message for other errors
-      toast.error("Make sure the form is correctly filled.");
+      // Optionally, reset any other form state or redirect to another page on success
+    } catch (error) {
+      toast.error("Make Sure Form is Correctly filled");
+      // Handle error state or notify user of failure
+      setLoading(false);
     }
-  }
-};
+  };
 
   const institutions = [
     "ACSIR-Academy of Scientific and Innovative Research",
@@ -423,7 +417,7 @@ function LocalMeetingRequest() {
               {adminDetails && (
               <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5">
               <h1 className="text-xl font-serif text-center text-white">
-                Local/Vc Form
+                Local/Vc Form Edit
               </h1>
                 </div>
               )}
@@ -923,4 +917,4 @@ function LocalMeetingRequest() {
   );
 }
 
-export default LocalMeetingRequest;
+export default LocalMeetingEdit;

@@ -463,7 +463,7 @@ function LocalMeetingInfo() {
                 <>
                   <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5">
                     <h1 className="text-xl font-serif text-center text-white">
-                      Local Meeting Information
+                      Local/Vc Meeting Information
                     </h1>
                   </div>
                   <div className="bg-white text-xs mt-1 p-1.5 flex items-center">

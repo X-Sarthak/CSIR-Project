@@ -2151,6 +2151,15 @@ app.post("/admin/vc/create", async (req, res) => {
     return res.status(400).json({ error: errors.join("; ") });
   }
 
+
+  const formattedStartTime = formatTime(startTime);
+  const formattedEndTime = formatTime(endTime);
+
+  // Check if startTime is less than endTime
+  if (formattedStartTime >= formattedEndTime) {
+    return res.status(400).json({ error: "End time must be greater than start time" });
+  }
+
   // Conditionally assign values based on presence of manualInstitutionFarSight and manualInstitution
   let finalLabOrInstitutionFarSight = labOrInstitutionFarSight;
   let finalLabOrInstitution = labOrInstitution;
@@ -2209,8 +2218,8 @@ app.post("/admin/vc/create", async (req, res) => {
       contactDetails,
       finalVcVenueName,
       meetingDate,
-      startTime,
-      endTime,
+      formattedStartTime,
+      formattedEndTime,
       finalParties, // Use finalParties instead of parties
       finalLabOrInstitutionFarSight, // Use finalLabOrInstitutionFarSight instead of labOrInstitutionFarSight
       personName,
