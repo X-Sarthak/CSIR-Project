@@ -19,7 +19,7 @@ import axios from 'axios';
 
 
 
-axios.defaults.baseURL = 'https://csir-project-backend-j7z25jqr3-x-sarthaks-projects.vercel.app';
+axios.defaults.baseURL = 'https://csir-project-backend-git-main-x-sarthaks-projects.vercel.app';
 
 
 function App() {
