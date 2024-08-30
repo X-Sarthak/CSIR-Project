@@ -317,11 +317,11 @@ function BookingSchedule() {
                   </div>
                 </div>
                 <div className="flex items-center mt-2 mb-1">
-                  <label className="mr-2 text-md font-medium text-gray-700">
+                  <label className="mr-1 text-md font-medium text-gray-700">
                     Select Meeting Room:
                   </label>
                   <select
-                      className="border border-gray-300 px-2.5 py-1 ml-2 rounded-md"
+                      className="border border-gray-300 px-3 py-1 ml-2.5 rounded-md"
                       value={selectedMeeting}  // Bind value to selectedMeeting state
                       onChange={handleMeetingChange}
                   >

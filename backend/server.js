@@ -3015,14 +3015,14 @@ app.get('/admin/vcdata', (req, res) => {
       return res.status(400).json({ error: 'Admin username not found in token' });
     }
 
-    // Retrieve date and meetingId from query parameters
+    // Retrieve meetingId from query parameters
     const meetingId = req.query.meetingId;
 
     if (!meetingId) {
-      return res.status(400).json({ error: 'Date and Meeting ID parameters are required' });
+      return res.status(400).json({ error: 'Meeting ID parameter is required' });
     }
 
-    // Query to fetch data based on admin_username, meetingDate, and meetingId
+    // Query to fetch data based on admin_username and meetingId
     const query = `
       SELECT 
         DATE_FORMAT(requestDate,'%Y-%m-%d') AS requestDate,
@@ -3056,8 +3056,13 @@ app.get('/admin/vcdata', (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
       }
 
+      // Check if the result set is empty
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'Meeting ID not found' });
+      }
+
       // Return results as JSON response
-      res.status(200).json(results[0] || {});
+      res.status(200).json(results[0]);
     });
   } catch (error) {
     console.error('Error querying database:', error);
