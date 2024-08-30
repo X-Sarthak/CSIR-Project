@@ -12,7 +12,7 @@ CREATE TABLE Superadmin (
 
 
 INSERT INTO Superadmin (superadmin_username, superadmin_password) 
-VALUES ('admin', '1234');
+VALUES ('admin', '$2b$10$6.K/PiroxjwilBYZJ9kjqeAbHeM2X0SPGJJ9y6DSrCoLquWUX35dO');
 
 
 CREATE TABLE Admins (
@@ -99,8 +99,9 @@ CREATE TABLE VCinformation (
     presentationRequired BOOLEAN NOT NULL,
     recordingRequired BOOLEAN NOT NULL,
     remarks TEXT,
-    admin_username VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    FOREIGN KEY (admin_username) REFERENCES Admins(admin_username)
 );
 
 
