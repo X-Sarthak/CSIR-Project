@@ -10,12 +10,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-app.use(cors({
-  origin: 'https://csir-project-frontend-git-main-x-sarthaks-projects.vercel.app', // Allow this origin
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow these HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
-}));
-
+app.use(
+  cors({
+    origin: ["https://csir-project-frontend-git-main-x-sarthaks-projects.vercel.app","https://csir-project-frontend-x-sarthaks-projects.vercel.app"], // Replace this with the origin of your frontend application
+    credentials: true, // Allow credentials (cookies)
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(
