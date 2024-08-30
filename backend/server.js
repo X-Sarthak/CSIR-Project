@@ -14,6 +14,10 @@ app.use(
   cors({
     origin: ["https://csir-project-frontend-git-main-x-sarthaks-projects.vercel.app","https://csir-project-frontend-x-sarthaks-projects.vercel.app"], // Replace this with the origin of your frontend application
     credentials: true, // Allow credentials (cookies)
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
+    }
   })
 );
 app.use(express.json());
