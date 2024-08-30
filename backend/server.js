@@ -12,12 +12,8 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: ["https://csir-project-frontend-git-main-x-sarthaks-projects.vercel.app","https://csir-project-frontend-x-sarthaks-projects.vercel.app"], // Replace this with the origin of your frontend application
+    origin: "http://localhost:5173", // Replace this with the origin of your frontend application
     credentials: true, // Allow credentials (cookies)
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
-    }
   })
 );
 app.use(express.json());
@@ -38,7 +34,7 @@ app.use(
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  password: '',
+  password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 });
 
@@ -80,7 +76,6 @@ connection.connect((err) => {
 //     }
 //   );
 // });
-
 
 //*****
 // Superadmin Login for main login application use this after superadmn credentials have inserted into database
@@ -2336,7 +2331,7 @@ app.get('/admin/laboratory/All/meeting/detail', (req, res) => {
     presentationRequired,
     recordingRequired,
     remarks
-    FROM VCinformation;
+    FROM VCinformation WHERE admin_username = ?;
     `;
 
     connection.query(query, [adminUsername], (error, results) => {

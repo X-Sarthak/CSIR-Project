@@ -97,10 +97,7 @@ function LocalMeetingRequest() {
 
   const fetchAdminDetails = async () => {
     try {
-      const response = await axios.get(
-        "/admin/details",
-        {}
-      );
+      const response = await axios.get("/admin/details", {});
       setAdminDetails(response.data);
     } catch (error) {
       console.error("Error fetching admin details:", error);
@@ -186,19 +183,21 @@ function LocalMeetingRequest() {
       setAgree(false);
       setLoading(false);
 
-    // Optionally, reset any other form state or redirect to another page on success
-  } catch (error: any) {
-    setLoading(false);
+      // Optionally, reset any other form state or redirect to another page on success
+    } catch (error: any) {
+      setLoading(false);
 
-    if (error.response && error.response.status === 400) {
-      // Specific error message for end time greater than start time
-      toast.error("End time cannot be earlier than start time. Please correct the times.");
-    } else {
-      // General error message for other errors
-      toast.error("Make sure the form is correctly filled.");
+      if (error.response && error.response.status === 400) {
+        // Specific error message for end time greater than start time
+        toast.error(
+          "End time cannot be earlier than start time. Please correct the times."
+        );
+      } else {
+        // General error message for other errors
+        toast.error("Make sure the form is correctly filled.");
+      }
     }
-  }
-};
+  };
 
   const institutions = [
     "ACSIR-Academy of Scientific and Innovative Research",
@@ -422,10 +421,10 @@ function LocalMeetingRequest() {
             </div>
             <div className="flex-1 border-l border-black bg-white flex flex-col">
               {adminDetails && (
-              <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5">
-              <h1 className="text-xl font-serif text-center text-white">
-                Local/Vc Form
-              </h1>
+                <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5">
+                  <h1 className="text-xl font-serif text-center text-white">
+                    Local/Vc Form
+                  </h1>
                 </div>
               )}
               {/* Form Section */}
@@ -439,8 +438,8 @@ function LocalMeetingRequest() {
                     Request Date:
                   </label>
                   <label className="block mb-1 font-medium">
-                      Date:<span className="text-red-500">*</span>
-                    </label>
+                    Date:<span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="date"
                     value={requestDate}
@@ -539,9 +538,13 @@ function LocalMeetingRequest() {
                       type="number"
                       placeholder="Enter contact details"
                       value={contactDetails}
-                      onChange={(e) => setContactDetails(e.target.value)}
+                      onChange={(e) => {
+                        if (e.target.value.length <= 15) {
+                          setContactDetails(e.target.value);
+                        }
+                      }}
                       className="border border-gray-300 px-3 py-2 w-full rounded-md"
-                      maxLength={200}
+                      maxLength={15}
                       required
                     />
                   </div>
@@ -585,9 +588,9 @@ function LocalMeetingRequest() {
                     Date & Time of the VC/Local Meeting:
                   </label>
                   <label className="block mb-1 font-medium">
-                      Date:
-                      <span className="text-red-500">*</span>
-                    </label>
+                    Date:
+                    <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="date"
                     value={meetingDate}
@@ -736,9 +739,13 @@ function LocalMeetingRequest() {
                       type="number"
                       placeholder="Enter person's contact"
                       value={personContact}
-                      onChange={(e) => setPersonContact(e.target.value)}
+                      onChange={(e) => {
+                        if (e.target.value.length <= 15) {
+                          setPersonContact(e.target.value);
+                        }
+                      }}
                       className="border border-gray-300 px-3 py-2 w-full rounded-md"
-                      maxLength={200}
+                      maxLength={15}
                       required
                     />
                   </div>
