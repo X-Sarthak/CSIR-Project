@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173", // Replace this with the origin of your frontend application
+    origin: "https://csir-project-frontend.vercel.app", // Replace this with the origin of your frontend application
     credentials: true, // Allow credentials (cookies)
   })
 );
