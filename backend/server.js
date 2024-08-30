@@ -11,7 +11,7 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: 'https://csir-project-frontend-5az8249s6-x-sarthaks-projects.vercel.app', // Allow this origin
+  origin: 'https://csir-project-frontend-git-main-x-sarthaks-projects.vercel.app', // Allow this origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow these HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
 }));
