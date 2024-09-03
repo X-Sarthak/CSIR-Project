@@ -1,6 +1,5 @@
 import React, { useState, useEffect, FormEvent, useRef } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -23,7 +22,6 @@ function BookingForm({ meeting, setShowBookingForm }: BookingFormProps) {
   const [bookedSlots, setBookedSlots] = useState<any[]>([]);
   const [link, setLink] = useState("");
   const formRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchMeetingSchedule();
@@ -121,11 +119,7 @@ function BookingForm({ meeting, setShowBookingForm }: BookingFormProps) {
           meeting_link: link,
         }
       );
-
       console.log("Booking data inserted successfully:", response.data);
-
-      toast.success("Meeting scheduled successfully!");
-
       setSelectedDate("");
       setSelectedDay("");
       setStartTime("");
@@ -134,7 +128,6 @@ function BookingForm({ meeting, setShowBookingForm }: BookingFormProps) {
       setLink("");
 
       setShowBookingForm(false);
-      navigate("/login/user/request/display");
     } catch (error: any) {
       console.error("Error inserting booking data:", error.response?.data);
 

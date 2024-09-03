@@ -675,7 +675,7 @@ function LocalMeetingRequest() {
                   {/* Far-sighted Details */}
                   <div className="mt-2">
                     <label className="block mb-1 text-xl font-bold underline">
-                      Far-sighted Details:
+                      Far-sight Details:
                     </label>
 
                     {/* Lab/Institution */}

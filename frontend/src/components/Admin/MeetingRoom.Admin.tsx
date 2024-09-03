@@ -24,7 +24,7 @@ function MeetingRoom() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Not Selected"); // New state for the select dropdown
   const [editMeeting, setEditMeeting] = useState<any | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1); // Pagination states
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [loading, setLoading] = useState(false);
   const navigator = useNavigate();
 
@@ -253,7 +253,7 @@ function MeetingRoom() {
   const totalPages = Math.ceil(meetings.length / itemsPerPage);
 
   // Add this inside your component
-  const itemsPerPageOptions = [10, 20, 30, 50];
+  const itemsPerPageOptions = [5, 10, 20, 30, 50];
 
   // Handle items per page change
   const handleItemsPerPageChange = (
