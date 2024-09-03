@@ -122,8 +122,8 @@ const Login: React.FC = () => {
         className="h-screen w-full flex flex-col items-center justify-center"
         style={{ backgroundColor: "rgb(82, 128, 188)" }}
       >
-        <div className={`bg-white p-4 w-full mb-24 -mt-14`}>
-          <div className="flex items-center ml-52">
+        <div className={`bg-white p-4 w-full mb-40 -mt-40`}>
+          <div className="flex items-center ml-60">
             <div className="h-16 w-auto">
               <a
                 href="https://www.csir.res.in/"
@@ -144,7 +144,7 @@ const Login: React.FC = () => {
               <p>Ministry of Science &amp; Technology, Govt. of India</p>
             </div>
             <div className="flex items-center">
-              <div className="h-16 w-auto ml-28">
+              <div className="h-16 w-auto ml-80">
                 <a
                   href="https://www.csir.res.in/csir-one-week-one-lab-program"
                   target="_blank"
@@ -153,7 +153,7 @@ const Login: React.FC = () => {
                   <img
                     src={icons.OneLabCSIR}
                     alt="CSIR OneLab Logo"
-                    className="h-12 w-auto mt-2"
+                    className="h-12 w-auto mt-2 ml-56"
                   />
                 </a>
               </div>
@@ -217,7 +217,7 @@ const Login: React.FC = () => {
           className={`bg-white p-4 mb-8 rounded-lg text-center ${
             activePanel ? "hidden" : ""
           }`}
-          style={{ width: "65%" }}
+          style={{ width: "48%" }}
         >
           <h1 className="text-2xl font-serif">Conference Room Booking</h1>
         </div>
