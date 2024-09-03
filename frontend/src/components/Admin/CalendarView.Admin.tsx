@@ -186,7 +186,7 @@ function CalendarView() {
                     />
                     <Alert
                       className="no-border-radius mt-2"
-                      message={`Total time for ${selectedValue.format("MMMM YYYY")}: ${totalTime} Hours`}
+                      message={`Total time for ${selectedValue.format("MMMM YYYY")}: ${totalTime} Hrs`}
                       type="info"
                     />
                     <Calendar

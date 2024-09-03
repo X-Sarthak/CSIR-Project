@@ -176,7 +176,7 @@ function Users() {
     setUsers([]); // Clear the users data
     setSelectedCategory(""); // Reset the category selection to default
     setSearchText(""); // Clear the search text input
-    setItemsPerPage(10); // Reset items per page to the default value
+    setItemsPerPage(20); // Reset items per page to the default value
     fetchUsersDetails(); // Refetch all users to reset the table
   };
 
@@ -234,7 +234,7 @@ const handlePrintClick = () => {
                 </h1>
               </div>
               {adminDetails && (
-                <div className="bg-white border-t border-r px-2 py-2 border-b border-black flex items-center">
+                <div className="bg-white border-t border-r px-1 py-1 border-b border-black flex items-center">
                   <label className="block text-sm font-medium text-gray-700 ml-2 mr-2">
                     Items per Page:
                   </label>
@@ -414,11 +414,11 @@ const handlePrintClick = () => {
               </div>
             </div>
           </div>
+          <ToastContainer />
           <footer className="text-center -mb-6 px-2 py-2 border-t border-black">
             Copyright &copy; {new Date().getFullYear()} Concept. All rights
             reserved.
           </footer>
-          <ToastContainer />
         </div>
       )}
     </>

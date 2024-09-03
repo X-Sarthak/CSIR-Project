@@ -43,7 +43,7 @@ function App() {
 
 
         <Route path='/login/meeting/dashboard' element={<MeetingDashboard />} />
-        <Route path='/login/meeting/request' element={<ShowRequest />} />
+        <Route path='/login/meeting/requests' element={<ShowRequest />} />
 
         <Route path='/login/user/dashboard' element={<UserDashboard />} />
         <Route path='/login/user/request/display' element={<MeetingDisplay />} />

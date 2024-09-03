@@ -81,8 +81,8 @@ function AdminHeader({ dashboardType }: { dashboardType: string }) {
 
   return (
     <div className="bg-sky-600 font-serif text-white">
-      <div className="container mx-auto px-auto py-4 flex items-center justify-between">
-        <span>{dashboardType}</span>
+      <div className='mx-6 ml-18 px-4 py-4 flex items-center justify-between'>
+      <span>{dashboardType}</span>
         <div className="relative">
           <div
             className="flex items-center justify-end cursor-pointer "
