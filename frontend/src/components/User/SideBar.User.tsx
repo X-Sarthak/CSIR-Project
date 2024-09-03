@@ -9,7 +9,7 @@ interface SidebarItem {
 
 const items: SidebarItem[] = [
   { label: 'Dashboard', link: '/login/user/dashboard' },
-  { label: 'Display Request', link: '/login/user/request/display' },
+  { label: 'Display Request', link: '/login/user/requests-display' },
   { label: 'Profile', link: '/login/user/profile' },
 ];
 

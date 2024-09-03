@@ -46,7 +46,7 @@ function App() {
         <Route path='/login/meeting/requests' element={<ShowRequest />} />
 
         <Route path='/login/user/dashboard' element={<UserDashboard />} />
-        <Route path='/login/user/request/display' element={<MeetingDisplay />} />
+        <Route path='/login/user/requests-display' element={<MeetingDisplay />} />
         <Route path='/login/user/profile' element={<UserProfile />} />
         
         <Route path='/superadmin/login' element={<SuperadminLogin />} />
