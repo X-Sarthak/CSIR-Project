@@ -89,7 +89,8 @@ function BookingSchedule() {
         `/admin/booking/meeting/user/detail?meetingUsername=${selectedMeeting}`
       );
       if (response.data.length > 0) {
-        setMeetingDetails(response.data);
+        const reversedSchedule = response.data.reverse();
+        setMeetingDetails(reversedSchedule);
         toast.success("Meeting details fetched successfully!");
       }
     } catch (error) {

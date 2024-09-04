@@ -48,7 +48,8 @@ function MeetingDisplay() {
   const fetchBookingRequests = async () => {
     try {
       const response = await axios.get("/user/booking/schedule");
-      setBookingRequests(response.data);
+      const reversedSchedule = response.data.reverse();
+      setBookingRequests(reversedSchedule);
     } catch (error) {
       console.error("Error fetching booking requests:", error);
     }

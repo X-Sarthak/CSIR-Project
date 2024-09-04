@@ -613,12 +613,12 @@ function LocalMeetingInfo() {
                           <th className="border border-gray-300 px-52 py-1">
                             Lab/Institution
                           </th>
-                          <th className="border border-gray-300 px-4 py-1">
+                          <th className="border border-gray-300 px-16 py-1">
                             Requester Name
                           </th>
                           {viewMode === "detailed" && (
                             <>
-                              <th className="border border-gray-300 px-5 py-1">
+                              <th className="border border-gray-300 px-16 py-1">
                                 Designation
                               </th>
                               <th className="border border-gray-300 px-10 py-1">
@@ -645,7 +645,7 @@ function LocalMeetingInfo() {
                               <th className="border border-gray-300 px-96 py-1">
                                 Lab/Institution Far Sight
                               </th>
-                              <th className="border border-gray-300 px-6 py-1">
+                              <th className="border border-gray-300 px-16 py-1">
                                 Person Name
                               </th>
                               <th className="border border-gray-300 px-4 py-1">
@@ -657,7 +657,7 @@ function LocalMeetingInfo() {
                               <th className="border border-gray-300 px-3 py-1">
                                 Connectivity Details
                               </th>
-                              <th className="border border-gray-300 px-6 py-1">
+                              <th className="border border-gray-300 px-96 py-1">
                                 Subject
                               </th>
                               <th className="border border-gray-300 px-5 py-1">
@@ -685,7 +685,7 @@ function LocalMeetingInfo() {
                               <th className="border border-gray-300 px-96 py-1">
                                 Lab/Institution Far Sight
                               </th>
-                              <th className="border border-gray-300 px-6 py-1">
+                              <th className="border border-gray-300 px-96 py-1">
                                 Subject
                               </th>
                               <th className="border border-gray-300 px-16 py-1">
