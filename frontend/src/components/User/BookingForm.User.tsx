@@ -3,7 +3,6 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 interface BookingFormProps {
   meeting: any; // Adjust the type according to your requirement
   setShowBookingForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -34,7 +33,7 @@ function BookingForm({ meeting, setShowBookingForm }: BookingFormProps) {
       );
       if (currentMeeting) {
         setStartTime(currentMeeting.start_time);
-        setEndTime(currentMeeting.end_time); 
+        setEndTime(currentMeeting.end_time);
       }
     }
   }, [selectedDay, meetingSchedule]);
@@ -42,10 +41,12 @@ function BookingForm({ meeting, setShowBookingForm }: BookingFormProps) {
   const fetchMeetingSchedule = async () => {
     try {
       // Fetch the current date from the World Clock API
-      const worldClockResponse = await axios.get(
-        "/currentDateTime"
-      );
-      const currentDate = new Date(worldClockResponse.data.currentDateTime);
+      // const worldClockResponse = await axios.get(
+      //   "/currentDateTime"
+      // );
+      // const currentDate = new Date(worldClockResponse.data.currentDateTime);
+      // Fetch the current date from the computer's local time
+      const currentDate = new Date();
 
       const response = await axios.get(
         `/user/calendar/meetings/${meeting.meeting_id}`
@@ -53,7 +54,7 @@ function BookingForm({ meeting, setShowBookingForm }: BookingFormProps) {
       setMeetingSchedule(response.data); // Assuming the response data is an array of meeting schedule objects
 
       // Generate available dates from the current date to the same date of the next 2 months
-      
+
       currentDate.setDate(currentDate.getDate() + 1); // Start from the next day
       const currentYear = currentDate.getFullYear();
       const currentMonth = currentDate.getMonth();
@@ -194,9 +195,6 @@ function BookingForm({ meeting, setShowBookingForm }: BookingFormProps) {
     }
   };
 
-
-
-
   // const convert24HourTo12Hour = (time: string) => {
   //   const [hours, minutes] = time.split(":");
   //   const hour = parseInt(hours);
@@ -213,7 +211,6 @@ function BookingForm({ meeting, setShowBookingForm }: BookingFormProps) {
   //   if (period === "AM" && hour === 12) hour = 0;
   //   return `${hour.toString().padStart(2, "0")}:${minutes}`;
   // };
-
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

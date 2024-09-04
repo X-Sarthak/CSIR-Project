@@ -114,11 +114,10 @@ function MeetingDisplay() {
             <div className="px-2 py-2 pr-4 bg-gray-400/50">
               <UserSidebar />
             </div>
-
             <div className="flex-1 border-l border-black bg-gray-400/50 flex flex-col">
               <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5 mb-2">
                 <h1 className="text-xl font-serif text-center text-white">
-                  Requests Sent{" "}
+                  Requests Sent
                 </h1>
               </div>
               <div className="bg-white border-t border-r px-1 py-1 border-b border-black flex items-center">
@@ -141,18 +140,18 @@ function MeetingDisplay() {
                 <table className="w-full rounded-b-xl bg-white">
                   <thead className="bg-gray-200 font-serif">
                     <tr>
-                      <th className="px-4 py-2">Meeting Title</th>
-                      <th className="px-4 py-2">Username</th>
-                      <th className="px-4 py-2">Approver Name</th>
-                      <th className="px-4 py-2">Meeting Room Name</th>
-                      <th className="px-4 py-2">Meeting Date</th>
-                      <th className="px-4 py-2">Start Time</th>
-                      <th className="px-4 py-2">End Time</th>
-                      <th className="px-4 py-2">Meeting Mode</th>
-                      <th className="px-4 py-2">Meeting Link</th>
-                      <th className="px-4 py-2">Status</th>
-                      <th className="px-4 py-2">Reason For Rejection</th>
-                      <th className="px-4 py-2">Cancel</th>
+                      <th className="px-2 py-2">Meeting Title</th>
+                      <th className="px-2 py-2">Username</th>
+                      <th className="px-2 py-2">Approver Name</th>
+                      <th className="px-2 py-2">Meeting Room Name</th>
+                      <th className="px-2 py-2">Meeting Date</th>
+                      <th className="px-2 py-2">Start Time</th>
+                      <th className="px-2 py-2">End Time</th>
+                      <th className="px-2 py-2">Meeting Mode</th>
+                      <th className="px-2 py-2">Meeting Link</th>
+                      <th className="px-2 py-2">Status</th>
+                      <th className="px-2 py-2">Reason For Rejection</th>
+                      <th className="px-2 py-2">Cancel</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -166,7 +165,7 @@ function MeetingDisplay() {
                       currentItems.map((request) => (
                         <tr
                           key={request.schedule_id}
-                          className="bg-white hover:bg-gray-100 text-medium"
+                          className="bg-white hover:bg-gray-100"
                         >
                           <td className="px-4 py-2 text-center">
                             {request.meeting_title}
@@ -262,7 +261,7 @@ function MeetingDisplay() {
                 >
                   {totalPages === 0
                     ? "No Pages"
-                    : `${currentPage} | ${totalPages}`}
+                    : `${currentPage} / ${totalPages}`}
                 </span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}

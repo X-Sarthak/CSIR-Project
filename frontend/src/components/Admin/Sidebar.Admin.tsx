@@ -9,7 +9,7 @@ interface SidebarItem {
 
 const items: SidebarItem[] = [
   { label: 'Dashboard', link: '/login/admin/dashboard' },
-  { label: 'Meeting Room', link: '/login/admin/meeting-room' },
+  { label: 'Meeting Rooms', link: '/login/admin/meeting-room' },
   { label: 'Users', link: '/login/admin/users' },
   { label: 'Booking Details', link: '/login/admin/booking-info' },
   { label: 'Local/Vc Form', link: '/login/admin/local-vc-conferencing-form' },

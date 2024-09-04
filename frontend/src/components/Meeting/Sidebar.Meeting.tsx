@@ -69,7 +69,7 @@ function MeetingSidebar(): JSX.Element {
         <button
           key={item.label}
           onClick={() => handleLinkClick(item.link)}
-          className={`px-16 py-2 border font-serif bg-sky-600 text-white
+          className={`px-14 py-2 border font-serif bg-sky-600 text-white
                       transition-transform duration-200 ease-in-out
                       hover:bg-sky-700
                       focus:outline-none

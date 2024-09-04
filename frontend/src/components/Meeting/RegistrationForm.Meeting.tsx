@@ -41,10 +41,12 @@ function RegistrationForm({ meeting, setShowRegistrationForm }: RegistrationForm
   const fetchMeetingSchedule = async () => {
     try {
       // Fetch the current date from the World Clock API
-      const worldClockResponse = await axios.get(
-        "/currentDateTime"
-      );
-      const currentDate = new Date(worldClockResponse.data.currentDateTime);
+      // const worldClockResponse = await axios.get(
+      //   "/currentDateTime"
+      // );
+      // const currentDate = new Date(worldClockResponse.data.currentDateTime);
+      // Fetch the current date from the computer's local time
+      const currentDate = new Date();
 
       const response = await axios.get(
         `/user/calendar/meetings/${meeting.meeting_id}`
