@@ -6,6 +6,6 @@ import './global.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
 //remove this at the of deployment phase
 <StrictMode>
-<App />,
+<App />
 </StrictMode>
 );

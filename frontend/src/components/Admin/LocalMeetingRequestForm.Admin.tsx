@@ -733,20 +733,19 @@ function LocalMeetingRequest() {
                   {/* Person Contact */}
                   <div className="mt-1">
                     <label className="block mb-1 font-medium">
-                      Person Contact:<span className="text-red-500">*</span>
+                    Person Contact (Optional):
                     </label>
                     <input
                       type="number"
                       placeholder="Enter person's contact"
                       value={personContact}
                       onChange={(e) => {
-                        if (e.target.value.length <= 15) {
+                        if (e.target.value.length <= 12) {
                           setPersonContact(e.target.value);
                         }
                       }}
                       className="border border-gray-300 px-3 py-2 w-full rounded-md"
-                      maxLength={15}
-                      required
+                      maxLength={12}
                     />
                   </div>
 

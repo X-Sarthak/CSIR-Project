@@ -45,6 +45,7 @@ function RegistrationForm({ meeting, setShowRegistrationForm }: RegistrationForm
       //   "/currentDateTime"
       // );
       // const currentDate = new Date(worldClockResponse.data.currentDateTime);
+      
       // Fetch the current date from the computer's local time
       const currentDate = new Date();
 

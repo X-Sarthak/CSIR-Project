@@ -2130,9 +2130,6 @@ app.post("/admin/vc/create", async (req, res) => {
   if (!personName) {
     errors.push("Person Name is required");
   }
-  if (!personContact) {
-    errors.push("Person Contact is required");
-  }
   if (!location) {
     errors.push("Location is required");
   }
@@ -3070,7 +3067,7 @@ app.get('/admin/vcdata', (req, res) => {
   }
 });
 
-//for update Local/Vc Form by meeting id
+//for update edit Local/Vc Form by meeting id
 app.post("/admin/vc/update", async (req, res) => {
   const {
     requestDate,
@@ -3128,7 +3125,6 @@ app.post("/admin/vc/update", async (req, res) => {
   if (!parties) errors.push("Parties are required");
   if (!labOrInstitutionFarSight) errors.push("Far-Sight Lab/Institution is required");
   if (!personName) errors.push("Person Name is required");
-  if (!personContact) errors.push("Person Contact is required");
   if (!location) errors.push("Location is required");
   if (!subject) errors.push("Subject is required");
   if (!members) errors.push("Members are required");

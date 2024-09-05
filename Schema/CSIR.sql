@@ -91,7 +91,7 @@ CREATE TABLE VCinformation (
     parties TEXT NOT NULL,
     labOrInstitutionFarSight VARCHAR(1024) NOT NULL,
     personName VARCHAR(255) NOT NULL,
-    personContact VARCHAR(255) NOT NULL,
+    personContact VARCHAR(255),
     location VARCHAR(255) NOT NULL,
     connectivityDetails TEXT,
     subject VARCHAR(255) NOT NULL,

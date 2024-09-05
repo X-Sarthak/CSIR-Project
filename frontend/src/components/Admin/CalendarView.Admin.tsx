@@ -15,7 +15,7 @@ interface Meeting {
   meetingDate: string; // Format: 'DD-MMM-YYYY'
   startTime: string;
   endTime: string;
-  vcVenueName: string; 
+  vcVenueName: string;
 }
 
 function CalendarView() {
@@ -24,7 +24,7 @@ function CalendarView() {
   const [adminDetails, setAdminDetails] = useState<{
     admin_username: string;
   } | null>(null);
-  const [totalTime, setTotalTime] = useState<string>(''); // To hold total time of the month
+  const [totalTime, setTotalTime] = useState<string>(""); // To hold total time of the month
 
   const [value, setValue] = useState(() => dayjs()); // Initialize with current date
   const [selectedValue, setSelectedValue] = useState(() => dayjs()); // Initialize with current date
@@ -113,7 +113,7 @@ function CalendarView() {
   };
 
   const onDateSelect = (newValue: Dayjs) => {
-    if (newValue.isSame(selectedValue, 'date')) {
+    if (newValue.isSame(selectedValue, "date")) {
       // Only proceed if it's a new date selection, not a month change
       setSelectedValue(newValue);
       const formattedDate = newValue.format("YYYY-MM-DD");
@@ -127,7 +127,7 @@ function CalendarView() {
 
   const onPanelChange = (value: Dayjs, mode: string) => {
     // Handle month and year changes here if needed
-    if (mode === 'month') {
+    if (mode === "month") {
       setSelectedValue(value); // Update selected value to the new month
       setValue(value); // Update value to the new month
     }
@@ -135,25 +135,23 @@ function CalendarView() {
 
   const dateCellRender = (currentDate: Dayjs) => {
     const formattedDate = currentDate.format("YYYY-MM-DD");
-    const dayMeetings = meetings.filter(meeting => {
+    const dayMeetings = meetings.filter((meeting) => {
       return dayjs(meeting.meetingDate).format("YYYY-MM-DD") === formattedDate;
     });
-  
+
     return (
       <ul className="events">
         {dayMeetings.map((meeting, index) => (
           <li key={index}>
             <div className="meeting-details">
               <span className="meeting-name">
-                <Badge status="success" style={{ marginRight: '8px' }} />
+                <Badge status="success" style={{ marginRight: "8px" }} />
                 {meeting.requesterName}
               </span>
               <span className="meeting-time">
                 {meeting.startTime} - {meeting.endTime}
               </span>
-              <span className="meeting-venue">
-                {meeting.vcVenueName}
-              </span>
+              <span className="meeting-venue">{meeting.vcVenueName}</span>
             </div>
             {index < dayMeetings.length - 1 && (
               <div className="separator"></div>
@@ -163,7 +161,7 @@ function CalendarView() {
       </ul>
     );
   };
-  
+
   return (
     <>
       {loading && <Spinner />}
@@ -186,7 +184,7 @@ function CalendarView() {
                     />
                     <Alert
                       className="no-border-radius mt-2"
-                      message={`Total time for ${selectedValue.format("MMMM YYYY")}: ${totalTime} Hrs`}
+                      message={`Total Month Meeting Time: ${selectedValue.format("MMMM YYYY")} / ${totalTime} Hrs`}
                       type="info"
                     />
                     <Calendar
@@ -194,7 +192,7 @@ function CalendarView() {
                       value={value}
                       onSelect={onDateSelect}
                       onPanelChange={onPanelChange} // Handle month/year changes
-                      cellRender={dateCellRender} 
+                      cellRender={dateCellRender}
                     />
                   </div>
                 </>

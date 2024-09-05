@@ -355,12 +355,12 @@ function LocalMeetingInfo() {
         case "Start Time":
         case "End Time":
         case "Request Date":
-          return { width: 15 };
+          return { width: 20 };
         case "Lab/Institution":
         case "VC Venue Name":
         case "Lab/Institution Far Sight":
         case "Location":
-          return { width: 30 };
+          return { width: 55 };
         case "Requester Name":
         case "Person Name":
         case "Division":
@@ -368,15 +368,15 @@ function LocalMeetingInfo() {
         case "Contact Details":
         case "Person Contact":
         case "Connectivity Details":
-          return { width: 25 };
+          return { width: 30 };
         case "Parties":
         case "Members":
         case "Presentation Required":
         case "Recording Required":
         case "Remarks":
-          return { width: 20 };
+          return { width: 30 };
         case "Subject":
-          return { width: 25 };
+          return { width: 85 };
         default:
           return { width: 15 }; // Default width for any unspecified columns
       }
@@ -604,7 +604,7 @@ function LocalMeetingInfo() {
                     <table className="min-w-full bg-white border border-gray-300">
                       <thead className="bg-gray-200 text-sm">
                         <tr>
-                          <th className="border border-gray-300 px-1 py-1">
+                          <th className="border border-gray-300 px-4 py-1">
                             ID
                           </th>
                           <th className="border border-gray-300 px-10 py-1">
@@ -753,7 +753,11 @@ function LocalMeetingInfo() {
                                     {vcInfo.personName}
                                   </td>
                                   <td className="border border-gray-300 text-sm px-1 py-1 text-center">
-                                    {vcInfo.personContact}
+                                  {vcInfo.personContact ? (
+                                      vcInfo.personContact
+                                    ) : (
+                                      <span className="text-red-600">N/A</span>
+                                    )}
                                   </td>
                                   <td className="border border-gray-300 text-sm px-1 py-1 text-center">
                                     {vcInfo.location}

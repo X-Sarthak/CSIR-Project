@@ -73,7 +73,6 @@ function MeetingDashboard() {
       if (requestCount > 0) {
         toast.info(
           `You have ${requestCount} pending request for approval meeting schedule`,
-          { autoClose: false }
         );
       }
     } catch (error: any) {
