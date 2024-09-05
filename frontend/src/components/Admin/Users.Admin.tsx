@@ -10,7 +10,6 @@ import { toast, ToastContainer } from "react-toastify";
 import * as XLSX from "xlsx"; // Import XLSX library
 import Spinner from "../Utility/Spinner.Utility";
 
-
 axios.defaults.withCredentials = true;
 
 function Users() {
@@ -25,9 +24,9 @@ function Users() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [searchText, setSearchText] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("Not Selected"); // New state for the select dropdown
+  const [selectedCategory, setSelectedCategory] = useState<string>(""); // New state for the select dropdown
   const [loading, setLoading] = useState(false);
-  const navigator = useNavigate(); 
+  const navigator = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -40,7 +39,10 @@ function Users() {
           return;
         }
 
-        const response = await axios.post<{ valid: boolean }>("/admin/validateToken", { token });
+        const response = await axios.post<{ valid: boolean }>(
+          "/admin/validateToken",
+          { token }
+        );
         if (response.data.valid) {
           setValidSession(true);
           await fetchAdminDetails();
@@ -87,7 +89,9 @@ function Users() {
   const handleDeleteUser = async (userId: string) => {
     setLoading(true);
     try {
-      const response = await axios.delete(`/admin/users/delete/${userId}`, { withCredentials: true });
+      const response = await axios.delete(`/admin/users/delete/${userId}`, {
+        withCredentials: true,
+      });
       if (response.status === 200) {
         toast.success("Successfully Deleted");
         await fetchUsersDetails();
@@ -117,9 +121,17 @@ function Users() {
     try {
       let response;
       if (currentStatus === 1) {
-        response = await axios.put(`/admin/user/status/disable/${user_id}`, {}, { withCredentials: true });
+        response = await axios.put(
+          `/admin/user/status/disable/${user_id}`,
+          {},
+          { withCredentials: true }
+        );
       } else {
-        response = await axios.put(`/admin/user/status/enable/${user_id}`, {}, { withCredentials: true });
+        response = await axios.put(
+          `/admin/user/status/enable/${user_id}`,
+          {},
+          { withCredentials: true }
+        );
       }
       if (response.status === 200) {
         await fetchUsersDetails();
@@ -163,12 +175,26 @@ function Users() {
         category: selectedCategory,
         text: searchText,
       });
-      setUsers(response.data);
+
+      if (response.data.length > 0) {
+        setUsers(response.data);
+        toast.success("Search results fetched successfully!");
+      } else {
+        setUsers([]);
+        toast.warn("No Users records found.");
+      }
     } catch (error) {
-      toast.info("Select the Category and Text");
-      console.error("Error searching users:", error);
+      console.error("Error fetching search results:", error);
+
+      const err = error as any;
+
+      if (err.response && err.response.data && err.response.data.error) {
+        toast.error(err.response.data.error);
+      } else {
+        toast.error("Error fetching search results.");
+      }
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading
     }
   };
 
@@ -180,46 +206,47 @@ function Users() {
     fetchUsersDetails(); // Refetch all users to reset the table
   };
 
-const handlePrintClick = () => {
-  if (users.length === 0) {
-    toast.info("No users data available to export.");
-    return;
-  }
+  const handlePrintClick = () => {
+    if (users.length === 0) {
+      toast.info("No users data available to export.");
+      return;
+    }
 
-  // Define custom headers
-  const headers = ["Full Name", "Department", "Job Title", "Email Address"];
+    // Define custom headers
+    const headers = ["Full Name", "Department", "Job Title", "Email Address"];
 
-  // Prepare data with custom headers
-  const usersWithCustomHeaders = users.map(user => ({
-    "Full Name": user.user_name,
-    "Department": user.user_division,
-    "Job Title": user.user_designation,
-    "Email Address": user.user_email,
-  }));
+    // Prepare data with custom headers
+    const usersWithCustomHeaders = users.map((user) => ({
+      "Full Name": user.user_name,
+      Department: user.user_division,
+      "Job Title": user.user_designation,
+      "Email Address": user.user_email,
+    }));
 
-  // Create worksheet with custom headers
-  const ws = XLSX.utils.json_to_sheet(usersWithCustomHeaders, { header: headers });
+    // Create worksheet with custom headers
+    const ws = XLSX.utils.json_to_sheet(usersWithCustomHeaders, {
+      header: headers,
+    });
 
-  // Set column widths (optional, but can be adjusted as needed)
-  ws['!cols'] = [
-    { width: 20 }, // Full Name
-    { width: 25 }, // Department
-    { width: 30 }, // Job Title
-    { width: 35 }  // Email Address
-  ];
+    // Set column widths (optional, but can be adjusted as needed)
+    ws["!cols"] = [
+      { width: 20 }, // Full Name
+      { width: 25 }, // Department
+      { width: 30 }, // Job Title
+      { width: 35 }, // Email Address
+    ];
 
-  // Create workbook and append worksheet
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Users");
+    // Create workbook and append worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Users");
 
-  // Generate Excel file and trigger download
-  XLSX.writeFile(wb,"Users-CSIR Data.xlsx");
-};
+    // Generate Excel file and trigger download
+    XLSX.writeFile(wb, "Users-CSIR Data.xlsx");
+  };
 
-  
   return (
     <>
-     {loading && <Spinner />}
+      {loading && <Spinner />}
       {validSession && (
         <div>
           <AdminHeader dashboardType="Users" />
@@ -228,9 +255,9 @@ const handlePrintClick = () => {
               <AdminSidebar />
             </div>
             <div className="flex-1 border-l border-black bg-gray-400/50 flex flex-col">
-            <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5 mb-2">
+              <div className="bg-sky-600 border-t border-r border-b border-black mt-2 p-1.5 mb-2">
                 <h1 className="text-xl font-serif text-center text-white">
-                   Users
+                  Users
                 </h1>
               </div>
               {adminDetails && (
@@ -252,17 +279,17 @@ const handlePrintClick = () => {
                   <h1 className="block text-sm font-medium text-gray-700 ml-2 mr-2">
                     Username: {adminDetails.admin_username}
                   </h1>
-                     {/* Select Dropdown for Category */}
-                     <select
+                  {/* Select Dropdown for Category */}
+                  <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="border border-gray-300 px-2 py-1 rounded-md ml-2"
                   >
-                      <option value="">Not Selected</option>
-                    <option value="email">Email</option>
-                    <option value="name">Name</option>
-                    <option value="division">Division</option>
-                    <option value="designation">Designation</option>
+                    <option value="">Not Selected</option>
+                    <option value="Email">Email</option>
+                    <option value="Name">Name</option>
+                    <option value="Division">Division</option>
+                    <option value="Designation">Designation</option>
                   </select>
                   {/* Search Email Input */}
                   <input
@@ -285,17 +312,17 @@ const handlePrintClick = () => {
                     Add Users
                   </button>
                   <button
-                      onClick={handleResetClick} // Update to your search handler
-                      className="ml-2 px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600"
-                    >
-                      Reset
-                    </button>
-                    <button
-                      onClick={handlePrintClick} // Update to your search handler
-                      className="ml-2 px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600"
-                    >
-                      Print
-                    </button>
+                    onClick={handleResetClick} // Update to your search handler
+                    className="ml-2 px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    onClick={handlePrintClick} // Update to your search handler
+                    className="ml-2 px-3 py-1 border border-black rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                  >
+                    Print
+                  </button>
                 </div>
               )}
               {showUsersForm && (
@@ -361,9 +388,7 @@ const handlePrintClick = () => {
                                     user.user_status
                                   )
                                 }
-                                color={
-                                  user.user_status === 1 ? "green" : "red"
-                                }
+                                color={user.user_status === 1 ? "green" : "red"}
                               />
                             </span>
                             <button

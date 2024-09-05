@@ -21,7 +21,7 @@ function MeetingRoom() {
   const [showMeetingForm, setShowMeetingForm] = useState(false);
   const [meetings, setMeetings] = useState<any[]>([]);
   const [searchText, setSearchText] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("Not Selected"); // New state for the select dropdown
+  const [selectedCategory, setSelectedCategory] = useState<string>(""); // New state for the select dropdown
   const [editMeeting, setEditMeeting] = useState<any | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1); // Pagination states
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
@@ -188,12 +188,26 @@ function MeetingRoom() {
         category: selectedCategory,
         text: searchText,
       });
-      setMeetings(response.data);
+      if (response.data.length > 0) {
+        setMeetings(response.data);
+        toast.success("Search results fetched successfully!");
+      } else {
+        setMeetings([]);
+        toast.warn("No matching records found.");
+      }
+
     } catch (error) {
-      toast.info("Select the Category and Text");
-      console.error("Error searching users:", error);
+      console.error("Error fetching search results:", error);
+
+      const err = error as any;
+
+      if (err.response && err.response.data && err.response.data.error) {
+        toast.error(err.response.data.error);
+      } else {
+        toast.error("Error fetching search results.");
+      }
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading
     }
   };
 
@@ -306,7 +320,7 @@ function MeetingRoom() {
                       <option value=""> Not Selected</option>
                     <option value="Room Name">Room Name</option>
                     <option value="Approver Name"> Approver Name</option>
-                    <option value="Username">Username</option>
+                    <option value="Meeting Username"> Meeting Username</option>
                   </select>
                   {/* Search Email Input */}
                   <input

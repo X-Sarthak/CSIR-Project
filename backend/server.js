@@ -1353,8 +1353,12 @@ app.post("/admin/meetings/search", (req, res) => {
     const { text, category } = req.body;
 
     // Validate the text
+    if (!category) {
+      return res.status(400).json({ error: "Category is required" });
+    }
+    
     if (!text) {
-      return res.status(400).json({ error: "Text is required" });
+      return res.status(400).json({ error: "Search entry is required" });
     }
 
     // Build the query based on the selected category
@@ -1371,10 +1375,13 @@ app.post("/admin/meetings/search", (req, res) => {
         query += "authority_name LIKE ?";
         queryParams.push(`%${text}%`);
         break;
-      default:
-        query += "meeting_username LIKE ?";
-        queryParams.push(`%${text}%`);
+        case "Meeting Username":
+          query += "meeting_username LIKE ?";
+          queryParams.push(`%${text}%`);
         break;
+      default:
+        return res.status(400).json({ error: "Invalid search category" });
+
     }
 
     // Query the database with the constructed query and parameters
@@ -1769,11 +1776,16 @@ app.post("/admin/users/search", (req, res) => {
     }
 
     const adminUsername = decoded.admin_username;
+
     const { text, category } = req.body;
 
     // Validate the text
+    if (!category) {
+      return res.status(400).json({ error: "Category is required" });
+    }
+    
     if (!text) {
-      return res.status(400).json({ error: "Email is required" });
+      return res.status(400).json({ error: "Search entry is required" });
     }
 
     // Build the query based on the selected category
@@ -1781,22 +1793,24 @@ app.post("/admin/users/search", (req, res) => {
     let queryParams = [adminUsername];
 
     switch (category) {
-      case "name":
+      case "Name":
         query += "user_name LIKE ?";
         queryParams.push(`%${text}%`);
         break;
-      case "division":
+      case "Division":
         query += "user_division LIKE ?";
         queryParams.push(`%${text}%`);
         break;
-      case "designation":
+      case "Designation":
         query += "user_designation LIKE ?";
         queryParams.push(`%${text}%`);
         break;
-      default:
-        query += "user_email LIKE ?";
+        case "Email":
+          query += "user_email LIKE ?";
         queryParams.push(`%${text}%`);
         break;
+      default:
+        return res.status(400).json({ error: "Invalid search category" });
     }
 
     // Query the database with the constructed query and parameters
@@ -2015,7 +2029,7 @@ app.post("/admin/booking/meeting/filter", (req, res) => {
             query += ` AND DATE(MeetingSchedule.Meeting_date) = ?`;
             params.push(searchTerm);
             break;
-          case 'User Email':
+           case 'User Email':
           query += ` AND Users.user_email LIKE ?`;
           params.push(`%${searchTerm}%`);
           break;
