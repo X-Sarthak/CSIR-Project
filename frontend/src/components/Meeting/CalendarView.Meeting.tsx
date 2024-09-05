@@ -2,54 +2,57 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Calendar, Alert, Badge } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import AdminHeader from "./Header.Admin";
-import AdminSidebar from "./Sidebar.Admin";
+import MeetingHeader from "./Header.Meeting";
+import MeetingSidebar from "./Sidebar.Meeting";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../Utility/Spinner.Utility";
-import "./CalendarView.Admin.css";
+import "./CalendarView.Meeting.css";
 
 axios.defaults.withCredentials = true;
 
 interface Meeting {
-  requesterName: string;
-  meetingDate: string; // Format: 'DD-MMM-YYYY'
+  title: string;
+  userName: string;
+  userEmail: string;
+  date: string; // Format: 'YYYY-MM-DD'
   startTime: string;
   endTime: string;
-  vcVenueName: string;
+  requestStatus: boolean;
 }
 
-function CalendarView() {
+function MeetingCalendarView() {
   const [validSession, setValidSession] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [adminDetails, setAdminDetails] = useState<{
-    admin_username: string;
-  } | null>(null);
+  const [meetingDetails, setMeetingDetails] = useState<Meeting[] | null>(null);
   const [totalTime, setTotalTime] = useState<string>(""); // To hold total time of the month
   const [value, setValue] = useState(() => dayjs()); // Initialize with current date
   const [selectedValue, setSelectedValue] = useState(() => dayjs()); // Initialize with current date
+
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
+      setLoading(true); // Set loading to true when starting
       try {
         const token = sessionStorage.getItem("token");
-        const adminUsername = sessionStorage.getItem("admin_username") ?? "";
-        setLoading(true);
-        if (!token || !adminUsername) {
+        const meetingUsername =
+          sessionStorage.getItem("meeting_username") ?? "";
+        if (!token || !meetingUsername) {
           navigate("/");
           return;
         }
 
         const response = await axios.post<{ valid: boolean }>(
-          "/admin/validateToken",
+          "/meeting/validateToken",
           { token }
         );
         if (response.data.valid) {
           setValidSession(true);
-          fetchAdminDetails();
-          fetchMeetings();
-          fetchTotalTime(); // Fetch total time when the component loads
+          fetchMeetingDetails();
+          fetchMeetings(); // Fetch meeting details
+          fetchTotalTime(); // Fetch total time for the initial month
         } else {
           navigate("/");
         }
@@ -57,30 +60,32 @@ function CalendarView() {
         console.error("Error validating session:", error);
         navigate("/");
       } finally {
-        setLoading(false);
+        setLoading(false); // Set loading to false after validation is complete
       }
     };
 
     checkSession();
-  }, [navigate, value]);
+  }, [navigate]);
 
   useEffect(() => {
     fetchTotalTime(); // Fetch total time whenever the selected month changes
   }, [selectedValue]);
 
-  const fetchAdminDetails = async () => {
+  const fetchMeetingDetails = async () => {
     try {
-      const response = await axios.get("/admin/details");
-      setAdminDetails(response.data);
+      const response = await axios.get("/meeting/details");
+      setMeetingDetails(response.data);
     } catch (error) {
-      console.error("Error fetching admin details:", error);
+      console.error("Error fetching meeting details:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchMeetings = async () => {
     try {
       const response = await axios.get<Meeting[]>(
-        "/admin/local/meeting/detail/calendar"
+        "/meeting/booking/schedule/detail/calendar"
       );
       setMeetings(response.data);
     } catch (error) {
@@ -94,7 +99,7 @@ function CalendarView() {
 
     try {
       const response = await axios.get<{ total_time: string }>(
-        "/admin/local/meeting/total-time",
+        "/meeting/total-time/calendar",
         {
           params: {
             year,
@@ -113,8 +118,6 @@ function CalendarView() {
     if (newValue.isSame(selectedValue, "date")) {
       // Only proceed if it's a new date selection, not a month change
       setSelectedValue(newValue);
-      const formattedDate = newValue.format("YYYY-MM-DD");
-      navigate(`/login/admin/local-vc-conferencing-form?date=${formattedDate}`);
     } else {
       // Just update the selected value if it's a month change
       setSelectedValue(newValue);
@@ -133,22 +136,30 @@ function CalendarView() {
   const dateCellRender = (currentDate: Dayjs) => {
     const formattedDate = currentDate.format("YYYY-MM-DD");
     const dayMeetings = meetings.filter((meeting) => {
-      return dayjs(meeting.meetingDate).format("YYYY-MM-DD") === formattedDate; //changing the  date format from %d-%M-%Y to %Y-%m-%d
+      return meeting.date === formattedDate;
     });
-    
+
+ const getBadgeStatus = (status: number | boolean | null) => 
+  (status === true || status === 1) ? "success" : 
+  (status === false || status === 0) ? "error" : "warning";
+
     return (
       <ul className="events">
         {dayMeetings.map((meeting, index) => (
           <li key={index}>
             <div className="meeting-details">
-              <span className="meeting-name">
-                <Badge status="success" style={{ marginRight: "8px" }} />
-                {meeting.requesterName}
+              <span className="meeting-title">
+                <Badge
+                  className="mr-2"
+                  status={getBadgeStatus(meeting.requestStatus)} // Ensure this handles numeric values
+                />
+                Title - {meeting.title}
               </span>
+              <span className="meeting-user">Name - {meeting.userName}</span>
+              <span className="meeting-user">Email - {meeting.userEmail}</span>
               <span className="meeting-time">
                 {meeting.startTime} - {meeting.endTime}
               </span>
-              <span className="meeting-venue">{meeting.vcVenueName}</span>
             </div>
             {index < dayMeetings.length - 1 && (
               <div className="separator"></div>
@@ -164,13 +175,13 @@ function CalendarView() {
       {loading && <Spinner />}
       {validSession && (
         <div>
-          <AdminHeader dashboardType="Calendar" />
+          <MeetingHeader dashboardType="Calendar" />
           <div className="flex min-h-screen">
             <div className="px-2 py-2 pr-4 bg-gray-400/50">
-              <AdminSidebar />
+              <MeetingSidebar />
             </div>
             <div className="flex-1 border-l border-black bg-white flex flex-col">
-              {adminDetails && (
+              {meetingDetails && (
                 <>
                   <div className="mt-2">
                     <Alert
@@ -206,4 +217,4 @@ function CalendarView() {
   );
 }
 
-export default CalendarView;
+export default MeetingCalendarView;

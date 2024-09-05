@@ -16,6 +16,7 @@ import LocalMeetingInfo from './components/Admin/LocalMeetingInformation.Admin';
 import CalendarView from './components/Admin/CalendarView.Admin';
 import LocalMeetingEdit from './components/Admin/LocalMeetingEditForm.Admin';
 import axios from 'axios';
+import MeetingCalendarView from './components/Meeting/CalendarView.Meeting';
 
 
 
@@ -44,6 +45,8 @@ function App() {
 
         <Route path='/login/meeting/dashboard' element={<MeetingDashboard />} />
         <Route path='/login/meeting/requests' element={<ShowRequest />} />
+        <Route path='/login/meeting/calendar-view' element={<MeetingCalendarView />} />
+
 
         <Route path='/login/user/dashboard' element={<UserDashboard />} />
         <Route path='/login/user/requests-display' element={<MeetingDisplay />} />

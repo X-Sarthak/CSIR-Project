@@ -17,16 +17,16 @@ function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState<number>(1); // Pagination states
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
-  const navigator = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
-      setLoading(true);
+      setLoading(true); // Set loading to true when starting
       try {
         const token = sessionStorage.getItem("token");
         const adminUsername = sessionStorage.getItem("admin_username") ?? "";
         if (!token || !adminUsername) {
-          navigator("/");
+          navigate("/"); // Use 'navigate' for redirection, not 'navigator'
           return;
         }
 
@@ -37,24 +37,21 @@ function AdminDashboard() {
         if (response.data.valid) {
           setValidSession(true);
           // Fetch specific admin details after session validation
-          fetchAdminDetails(); // Pass admin ID or username here
-          fetchMeetingDetails();
-          setLoading(false);
+          await fetchAdminDetails(); // Ensure async fetch completion
+          await fetchMeetingDetails();
         } else {
-          // Navigate to login page if token is invalid
-          navigator("/");
-          setLoading(false);
+          navigate("/"); // Navigate to login page if token is invalid
         }
       } catch (error) {
         console.error("Error validating session:", error);
-        // Navigate to login page if there's an error
-        navigator("/");
-        setLoading(false);
+        navigate("/"); // Navigate to login page if there's an error
+      } finally {
+        setLoading(false); // Set loading to false after everything is done
       }
     };
 
     checkSession();
-  }, [navigator]);
+  }, [navigate]); // Correct dependency is 'navigate'
 
   // Function to fetch specific admin details
   const fetchAdminDetails = async () => {

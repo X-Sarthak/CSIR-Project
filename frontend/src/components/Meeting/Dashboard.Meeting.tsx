@@ -30,17 +30,18 @@ function MeetingDashboard() {
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
 
-  const navigator = useNavigate();
+  const navigate = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkSession = async () => {
+      setLoading(true); // Set loading to true when starting
       try {
         const token = sessionStorage.getItem("token");
         const meetingUsername =
           sessionStorage.getItem("meeting_username") ?? "";
         if (!token || !meetingUsername) {
-          navigator("/");
+          navigate("/");
           return;
         }
 
@@ -50,19 +51,21 @@ function MeetingDashboard() {
         );
         if (response.data.valid) {
           setValidSession(true);
-          fetchMeetingDetails();
+          await fetchMeetingDetails(); // Wait for meeting details to be fetched
         } else {
-          navigator("/");
+          navigate("/");
         }
       } catch (error) {
         console.error("Error validating session:", error);
-        navigator("/");
+        navigate("/");
+      } finally {
+        setLoading(false); // Set loading to false after validation is complete
       }
     };
 
     checkSession();
-    fetchRequestCount();
-  }, [navigator]);
+    fetchRequestCount(); // Call fetchRequestCount (if this is needed separately)
+  }, [navigate]);
 
   const fetchRequestCount = async () => {
     try {
@@ -70,11 +73,9 @@ function MeetingDashboard() {
         request_count: number;
       }>("/meeting/schedule/count");
       const requestCount = response.data.request_count;
-      if (requestCount > 0) {
-        toast.info(
-          `You have ${requestCount} pending request for approval meeting schedule`,
-        );
-      }
+      toast.info(
+        `You have ${requestCount} pending request for approval meeting schedule`
+      );
     } catch (error: any) {
       console.error("Error fetching request count:", error);
     }

@@ -10,6 +10,7 @@ interface SidebarItem {
 const items: SidebarItem[] = [
   { label: 'Dashboard', link: '/login/meeting/dashboard' },
   { label: 'Show Requests', link: '/login/meeting/requests' },
+  { label: 'Calendar', link: '/login/meeting/calendar-view' },
 ];
 
 function MeetingSidebar(): JSX.Element {

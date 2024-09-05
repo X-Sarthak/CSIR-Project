@@ -4812,8 +4812,146 @@ app.get("/meeting/schedule/count", (req, res) => {
   }
 });
 
+
+//fetech meeting schedule for calendar daily request
+app.get('/meeting/booking/schedule/detail/calendar', (req, res) => {
+  try {
+    // Retrieve token from session or request headers
+    const token = req.session.token; // Adjust this based on your session management
+
+    // Check if the token exists
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
+
+    // Verify and decode the token to extract the username
+    const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
+    const decoded = jwt.verify(token, secretKey);
+    const meetingUsername = decoded.meeting_username;
+
+    // First query: Get meeting_id using meeting_username
+    const meetingIdQuery = `SELECT meeting_id FROM Meetings WHERE meeting_username = ?`;
+
+    connection.query(meetingIdQuery, [meetingUsername], (error, meetingResult) => {
+      if (error) {
+        console.error('Error fetching meeting ID:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      if (meetingResult.length === 0) {
+        return res.status(404).json({ error: 'No meeting found for this username' });
+      }
+
+      const meetingId = meetingResult[0].meeting_id;
+
+      // Second query: Use meeting_id to get the meeting schedule details
+      const scheduleQuery = `
+        SELECT
+          MeetingSchedule.meeting_title AS title,
+          Users.user_name AS userName,
+          Users.user_email AS userEmail,
+          DATE_FORMAT(MeetingSchedule.meeting_date, '%Y-%m-%d') AS date,
+          TIME_FORMAT(MeetingSchedule.start_time, '%h:%i %p') AS startTime,
+          TIME_FORMAT(MeetingSchedule.end_time, '%h:%i %p') AS endTime,
+          MeetingSchedule.request_status AS requestStatus
+          FROM MeetingSchedule
+          LEFT JOIN Users ON MeetingSchedule.user_id = Users.user_id
+          JOIN Meetings ON MeetingSchedule.meeting_id = Meetings.meeting_id
+           WHERE MeetingSchedule.meeting_id = ?
+      `;
+
+      connection.query(scheduleQuery, [meetingId], (error, results) => {
+        if (error) {
+          console.error('Error fetching meeting schedule information:', error);
+          return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (results.length === 0) {
+          return res.status(404).json({ error: 'No meeting schedule information found' });
+        }
+
+        // Return meeting schedule information as JSON response
+        res.status(200).json(results);
+      });
+    });
+  } catch (error) {
+    console.error('Error with session or request:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//total time month of meeting schedule information count
+app.get('/meeting/total-time/calendar', (req, res) => {
+  try {
+    // Retrieve token from session or request headers
+    const token = req.session.token; // Adjust this based on your session management
+
+    // Check if the token exists
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
+
+    // Verify and decode the token to extract the meeting username
+    const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
+    const decoded = jwt.verify(token, secretKey);
+    const meetingUsername = decoded.meeting_username;
+
+    // Retrieve month and year from query parameters
+    const { year, month } = req.query;
+
+    if (!year || !month) {
+      return res.status(400).json({ error: 'Year and month are required' });
+    }
+
+    // Validate year and month
+    if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
+      return res.status(400).json({ error: 'Invalid year or month' });
+    }
+
+    // Query to calculate total meeting time for the given month and year
+    const query = `
+      SELECT
+  TIME_FORMAT(
+    SEC_TO_TIME(
+      SUM(
+        TIMESTAMPDIFF(
+          SECOND,
+          MeetingSchedule.start_time,
+          MeetingSchedule.end_time
+        )
+      )
+    ),
+    '%H:%i'
+  ) AS total_time
+FROM MeetingSchedule
+      JOIN Meetings ON MeetingSchedule.meeting_id = Meetings.meeting_id
+      WHERE Meetings.meeting_username = ?
+        AND YEAR(MeetingSchedule.meeting_date) = ?
+        AND MONTH(MeetingSchedule.meeting_date) = ?;
+    `;
+
+    connection.query(query, [meetingUsername, year, month], (error, results) => {
+      if (error) {
+        console.error('Error calculating total meeting time:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      // Check if there are any results
+      if (results.length === 0 || !results[0].total_time) {
+        return res.status(404).json({ error: 'No meeting information found' });
+      }
+
+      // Return total meeting time as JSON response
+      res.status(200).json({ total_time: results[0].total_time });
+    });
+  } catch (error) {
+    console.error('Error querying database:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.get('/', (req, res) => {
-  res.send('Hello World server is Live')
+  res.send('Server is Live')
 })
 
 const port = process.env.PORT || 4000;

@@ -24,7 +24,7 @@ function ShowRequest() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const formRef = useRef<HTMLDivElement>(null);
-  const navigator = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -33,7 +33,7 @@ function ShowRequest() {
         const meetingUsername =
           sessionStorage.getItem("meeting_username") ?? "";
         if (!token || !meetingUsername) {
-          navigator("/");
+          navigate("/");
           return;
         }
 
@@ -45,18 +45,18 @@ function ShowRequest() {
           setValidSession(true);
           fetchMeetingSchedule();
         } else {
-          navigator("/");
+          navigate("/");
         }
       } catch (error) {
         console.error("Error validating session:", error);
-        navigator("/");
+        navigate("/");
       } finally {
         setLoading(false);
       }
     };
 
     checkSession();
-  }, [navigator]);
+  }, [navigate]);
 
   const fetchMeetingSchedule = async () => {
     try {
