@@ -29,6 +29,9 @@ function MeetingDashboard() {
   const [loading, setLoading] = useState(true);
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [selectedMeeting, setSelectedMeeting] = useState(null);
+  const [showURLInput, setShowURLInput] = useState(false);
+  const [url, setURL] = useState("");
+
 
   const navigate = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
@@ -200,6 +203,17 @@ function MeetingDashboard() {
     setShowRegistrationForm(true);
   };
 
+  const handleURLSubmit = () => {
+    if (url) {
+      // Handle URL submission, e.g., send it to the server or perform an action
+      toast.success(`URL submitted: ${url}`);
+      setURL("");
+      setShowURLInput(false);
+    } else {
+      toast.info("Please enter a URL.");
+    }
+  };
+
   return (
     <>
       {loading && <Spinner />}
@@ -253,6 +267,12 @@ function MeetingDashboard() {
                 className="bg-blue-500 hover:bg-blue-600 text-white font-serif shadow-md px-6 py-3 rounded-md transition duration-300 ease-in-out absolute top-40 right-4 mt-24  mx-4"
               >
                 Update Days and Time
+              </button>
+              <button
+                onClick={() => setShowURLInput(true)}
+                className="bg-purple-500 hover:bg-purple-600 text-white font-serif shadow-md px-6 py-3 rounded-md transition duration-300 ease-in-out absolute top-40 right-4 mt-8 mx-4"
+              >
+                Insert URL
               </button>
               {showForm && (
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
@@ -313,6 +333,36 @@ function MeetingDashboard() {
                       </button>
                       <button
                         onClick={() => setShowForm(false)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+                 {showURLInput && (
+                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                  <div ref={formRef} className="bg-white p-6 rounded-md w-auto">
+                    <h3 className="text-xl font-serif mb-4 text-center">
+                      Enter URL
+                    </h3>
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) => setURL(e.target.value)}
+                      placeholder="https://example.com"
+                      className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        onClick={handleURLSubmit}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition duration-300 ease-in-out mr-2"
+                      >
+                        Submit
+                      </button>
+                      <button
+                        onClick={() => setShowURLInput(false)}
                         className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-300 ease-in-out"
                       >
                         Cancel
