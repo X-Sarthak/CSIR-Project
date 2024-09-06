@@ -218,7 +218,7 @@ function MeetingDashboard() {
               </div>
               <div className="bg-white border-t border-r border-b border-black mt-2 p-1.5 flex justify-between items-center">
                 <h3 className="text-xl font-serif">
-                  Username: {meetingDetails?.meeting_username}
+                  Username/No.: {meetingDetails?.meeting_username}
                 </h3>
                 {meetingDetails?.formatted_start_time &&
                   meetingDetails?.formatted_end_time && (

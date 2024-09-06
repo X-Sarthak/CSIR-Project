@@ -697,7 +697,7 @@ app.post("/admin/validateToken", (req, res) => {
       console.log("Valid token for:", decoded.admin_username);
       return res
         .status(200)
-        .json({ valid: true, meeting_username: decoded.admin_username });
+        .json({ valid: true, admin_username: decoded.admin_username });
     }
   });
 });

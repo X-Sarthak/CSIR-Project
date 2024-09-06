@@ -77,7 +77,7 @@ const MeetingLogin: React.FC = () => {
           <input
             type="text"
             className="rounded-md border-2 p-2"
-            placeholder="Meeting Username"
+            placeholder="Meeting Username/No."
             required
             onChange={(e) => setMeetingUsername(e.target.value)}
             value={meetingUsername}
