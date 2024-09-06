@@ -45,7 +45,7 @@ function SuperAdminHeader({ dashboardType }: { dashboardType: string }) {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("superadmin_username");
     setValidSession(false); // Clear session state
-    navigator("/");
+    navigator("/superadmin/login");
   };
 
   const handleChangePassword = () => {

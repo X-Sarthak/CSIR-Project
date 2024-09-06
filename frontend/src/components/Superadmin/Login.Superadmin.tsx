@@ -23,7 +23,12 @@ const SuperadminLogin: React.FC = () => {
         if (token && superadminUsername) {
           const response = await axios.post<{ valid: boolean }>(
             "/superadmin/validateToken",
-            { token }
+            { token },
+            {
+              headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+              }
+            }
           );
           if (response.data.valid) {
             navigate("/superadmin/login/dashboard");
@@ -55,6 +60,11 @@ const SuperadminLogin: React.FC = () => {
         {
           superadmin_username: superadminUsername,
           superadmin_password: superadminPassword,
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          }
         }
       );
       if (response.status === 200) {

@@ -79,7 +79,11 @@ function SuperAdminDashboard() {
 
   const fetchAdmins = async () => {
     try {
-      const response = await axios.get("/admins");
+      const response = await axios.get("/admins", {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        }
+      });
       const reversedSchedule = response.data.reverse();
       setAdmins(reversedSchedule);
     } catch (error) {

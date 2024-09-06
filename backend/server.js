@@ -25,7 +25,7 @@ app.use(
     saveUninitialized: true,
     cookie: {
       secure: false,
-      maxAge: 5000000,
+      maxAge: 5000000, // The maximum age 30 Seconds 30,000
     },
   }) 
 );
@@ -217,7 +217,8 @@ app.post("/admin", (req, res) => {
 // Endpoint to fetch admin data
 app.get("/admins", (req, res) => {
   // Retrieve the token from the session
-  const token = req.session.token;
+  // const token = req.session.token;
+  const token = req.headers.Authorization || req.session.token;
 
   // Check if token exists
   if (!token) {
