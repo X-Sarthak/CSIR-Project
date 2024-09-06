@@ -51,7 +51,8 @@ function MeetingDashboard() {
         );
         if (response.data.valid) {
           setValidSession(true);
-          await fetchMeetingDetails(); // Wait for meeting details to be fetched
+          fetchMeetingDetails(); // Wait for meeting details to be fetched
+          fetchRequestCount();
         } else {
           navigate("/");
         }
@@ -64,7 +65,6 @@ function MeetingDashboard() {
     };
 
     checkSession();
-    fetchRequestCount(); // Call fetchRequestCount (if this is needed separately)
   }, [navigate]);
 
   const fetchRequestCount = async () => {

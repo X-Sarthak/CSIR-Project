@@ -71,6 +71,8 @@ CREATE TABLE MeetingSchedule (
     meeting_link VARCHAR(255),
     request_status BOOLEAN,
     reason_for_rejection VARCHAR(225),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (meeting_id) REFERENCES Meetings(meeting_id),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
@@ -100,6 +102,7 @@ CREATE TABLE VCinformation (
     recordingRequired BOOLEAN NOT NULL,
     remarks TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     FOREIGN KEY (admin_username) REFERENCES Admins(admin_username)
 );

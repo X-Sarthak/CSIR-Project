@@ -37,7 +37,6 @@ function App() {
         <Route path='/login/admin/local-vc-conferencing-form'element={<LocalMeetingRequest />} />
         <Route path='/login/admin/local-vc-conferencing-info'element={<LocalMeetingInfo />} />
         <Route path='/login/admin/local-vc-conferencing-edit'element={<LocalMeetingEdit />} />
-
         <Route path='/login/admin/calendar-view'element={<CalendarView />} />
 
 
