@@ -17,7 +17,7 @@ VALUES ('admin', '$2b$10$6.K/PiroxjwilBYZJ9kjqeAbHeM2X0SPGJJ9y6DSrCoLquWUX35dO')
 
 CREATE TABLE Admins (
     admin_id INT PRIMARY KEY AUTO_INCREMENT,
-    admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL UNIQUE,
+    admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL UNIQUE,
     admin_password VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     admin_status BOOLEAN NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -31,13 +31,13 @@ CREATE TABLE Meetings (
     meeting_id INT PRIMARY KEY AUTO_INCREMENT,
     room_name VARCHAR(255) NOT NULL,
     authority_name VARCHAR(255) NOT NULL,
-    meeting_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL UNIQUE,
+    meeting_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL UNIQUE,
     meeting_password VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     meeting_status BOOLEAN NOT NULL,
     meeting_days VARCHAR(1024),
     start_time TIME,
     end_time TIME,
-    admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (admin_username) REFERENCES Admins(admin_username)
@@ -48,10 +48,10 @@ CREATE TABLE Users (
     user_name VARCHAR(255) NOT NULL,
     user_division VARCHAR(255) NOT NULL,
     user_designation VARCHAR(255) NOT NULL,
-    user_email VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL UNIQUE,
+    user_email VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL UNIQUE,
     user_password VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
     user_status BOOLEAN NOT NULL,
-    admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (admin_username) REFERENCES Admins(admin_username)
@@ -103,7 +103,7 @@ CREATE TABLE VCinformation (
     remarks TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    admin_username VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
     FOREIGN KEY (admin_username) REFERENCES Admins(admin_username)
 );
 

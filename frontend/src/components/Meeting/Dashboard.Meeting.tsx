@@ -203,12 +203,26 @@ function MeetingDashboard() {
     setShowRegistrationForm(true);
   };
 
-  const handleURLSubmit = () => {
+  const handleURLSubmit = async () => {
     if (url) {
-      // Handle URL submission, e.g., send it to the server or perform an action
-      toast.success(`URL submitted: ${url}`);
-      setURL("");
-      setShowURLInput(false);
+      try {
+        // Make the API call to update the meeting link
+        const response = await axios.post('/meeting/schedule/add-link', {
+          meeting_link: url, // Send the URL as the meeting_link in the request body
+        });
+  
+        // Check if the response was successful
+        if (response.status === 200) {
+          toast.success(`URL submitted successfully: ${url}`);
+          setURL("");
+          setShowURLInput(false);
+        } else {
+          toast.error("Failed to submit URL. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error submitting URL:", error);
+        toast.error("Error submitting URL. Please try again.");
+      }
     } else {
       toast.info("Please enter a URL.");
     }
@@ -264,13 +278,13 @@ function MeetingDashboard() {
               </div>
               <button
                 onClick={() => setShowForm(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-serif shadow-md px-6 py-3 rounded-md transition duration-300 ease-in-out absolute top-40 right-4 mt-24  mx-4"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-serif shadow-md px-6 py-3 rounded-md transition duration-300 ease-in-out absolute top-40 right-4 mt-20  mx-4"
               >
                 Update Days and Time
               </button>
               <button
                 onClick={() => setShowURLInput(true)}
-                className="bg-purple-500 hover:bg-purple-600 text-white font-serif shadow-md px-6 py-3 rounded-md transition duration-300 ease-in-out absolute top-40 right-4 mt-8 mx-4"
+                className="bg-purple-500 hover:bg-purple-600 text-white font-serif shadow-md px-6 py-3 rounded-md transition duration-300 ease-in-out absolute top-40 right-4 mt-37 mx-4"
               >
                 Insert URL
               </button>
@@ -353,6 +367,7 @@ function MeetingDashboard() {
                       onChange={(e) => setURL(e.target.value)}
                       placeholder="https://example.com"
                       className="w-full p-2 border border-gray-300 rounded-md mb-4"
+                      required
                     />
                     <div className="flex justify-end">
                       <button

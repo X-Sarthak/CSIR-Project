@@ -4900,53 +4900,123 @@ app.get('/meeting/total-time/calendar', (req, res) => {
     // Retrieve month and year from query parameters
     const { year, month } = req.query;
 
+    // Validate that both year and month are provided
     if (!year || !month) {
       return res.status(400).json({ error: 'Year and month are required' });
     }
 
-    // Validate year and month
+    // Validate year and month input
     if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
       return res.status(400).json({ error: 'Invalid year or month' });
     }
 
-    // Query to calculate total meeting time for the given month and year
+    // Query to calculate total meeting time and count total number of meetings for the given month and year
     const query = `
       SELECT
-  TIME_FORMAT(
-    SEC_TO_TIME(
-      SUM(
-        TIMESTAMPDIFF(
-          SECOND,
-          MeetingSchedule.start_time,
-          MeetingSchedule.end_time
-        )
-      )
-    ),
-    '%H:%i'
-  ) AS total_time
-FROM MeetingSchedule
+        COUNT(*) AS total_meetings,
+        TIME_FORMAT(
+          SEC_TO_TIME(
+            SUM(
+              TIMESTAMPDIFF(
+                SECOND,
+                MeetingSchedule.start_time,
+                MeetingSchedule.end_time
+              )
+            )
+          ),
+          '%H:%i'
+        ) AS total_time
+      FROM MeetingSchedule
       JOIN Meetings ON MeetingSchedule.meeting_id = Meetings.meeting_id
       WHERE Meetings.meeting_username = ?
         AND YEAR(MeetingSchedule.meeting_date) = ?
         AND MONTH(MeetingSchedule.meeting_date) = ?;
     `;
 
+    // Execute the query with the provided meeting username, year, and month
     connection.query(query, [meetingUsername, year, month], (error, results) => {
       if (error) {
-        console.error('Error calculating total meeting time:', error);
+        console.error('Error calculating total meeting time and count:', error);
         return res.status(500).json({ error: 'Internal server error' });
       }
 
       // Check if there are any results
-      if (results.length === 0 || !results[0].total_time) {
-        return res.status(404).json({ error: 'No meeting information found' });
+      if (results.length === 0 || !results[0].total_time || results[0].total_meetings === 0) {
+        return res.status(404).json({ error: 'No meeting information found for the given period' });
       }
 
-      // Return total meeting time as JSON response
-      res.status(200).json({ total_time: results[0].total_time });
+      // Return total meeting time and total meeting count as JSON response
+      res.status(200).json({
+        total_meetings: results[0].total_meetings,
+        total_time: results[0].total_time
+      });
     });
   } catch (error) {
     console.error('Error querying database:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+//insert link into database
+app.post('/meeting/schedule/add-link', (req, res) => {
+  try {
+    // Extract the token from the request session or headers
+    const token = req.session.token;
+
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
+
+    // Verify and decode the token to extract meeting_username
+    const secretKey = process.env.SECRET_KEY;
+    const decoded = jwt.verify(token, secretKey);
+    const meetingUsername = decoded.meeting_username;
+
+    // Extract meeting_link from the request body
+    const { meeting_link } = req.body;
+
+    // Validate meeting_link input
+    if (!meeting_link) {
+      return res.status(400).json({ error: "Meeting link is required" });
+    }
+
+    // First query: Get meeting_id using the meeting_username from the token
+    const meetingIdQuery = `SELECT meeting_id FROM Meetings WHERE meeting_username = ?`;
+
+    connection.query(meetingIdQuery, [meetingUsername], (error, meetingResult) => {
+      if (error) {
+        console.error('Error fetching meeting ID:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      // Check if the meeting exists for the given meeting_username
+      if (meetingResult.length === 0) {
+        return res.status(404).json({ error: 'No meeting found for this username' });
+      }
+
+      const meetingId = meetingResult[0].meeting_id;
+
+      // Second query: Update the meeting_link in the MeetingSchedule table
+      const updateLinkQuery = `UPDATE MeetingSchedule SET meeting_link = ? WHERE meeting_id = ?`;
+
+      connection.query(updateLinkQuery, [meeting_link, meetingId], (error, updateResult) => {
+        if (error) {
+          console.error('Error updating meeting link:', error);
+          return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        // Check if any rows were updated
+        if (updateResult.affectedRows === 0) {
+          return res.status(404).json({ error: 'No schedule found for the given meeting ID' });
+        }
+
+        // Success: Return a success response
+        res.status(200).json({ message: 'Meeting link updated successfully' });
+      });
+    });
+  } catch (error) {
+    console.error('Error processing request:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

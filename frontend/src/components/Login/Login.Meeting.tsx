@@ -100,7 +100,6 @@ const MeetingLogin: React.FC = () => {
           </button>
         </div>
       </form>
-      <div className="flex justify-center"></div>
     </div>
   );
 };

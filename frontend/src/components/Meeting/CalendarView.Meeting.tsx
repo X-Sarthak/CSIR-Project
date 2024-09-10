@@ -25,6 +25,7 @@ function MeetingCalendarView() {
   const [loading, setLoading] = useState(false);
   const [meetingDetails, setMeetingDetails] = useState<Meeting[] | null>(null);
   const [totalTime, setTotalTime] = useState<string>(""); // To hold total time of the month
+  const [meetingCount, setMeetingCount] = useState<number>(0); // To hold total number of meetings
   const [value, setValue] = useState(() => dayjs()); // Initialize with current date
   const [selectedValue, setSelectedValue] = useState(() => dayjs()); // Initialize with current date
 
@@ -52,7 +53,7 @@ function MeetingCalendarView() {
           setValidSession(true);
           fetchMeetingDetails();
           fetchMeetings(); // Fetch meeting details
-          fetchTotalTime(); // Fetch total time for the initial month
+          fetchTotalTime(); // Fetch total time and meeting count for the initial month
         } else {
           navigate("/");
         }
@@ -98,19 +99,21 @@ function MeetingCalendarView() {
     const month = selectedValue.month() + 1; // JavaScript months are 0-based
 
     try {
-      const response = await axios.get<{ total_time: string }>(
-        "/meeting/total-time/calendar",
-        {
-          params: {
-            year,
-            month,
-          },
-        }
-      );
+      const response = await axios.get<{
+        total_meetings: number;
+        total_time: string;
+      }>("/meeting/total-time/calendar", {
+        params: {
+          year,
+          month,
+        },
+      });
       setTotalTime(response.data.total_time);
+      setMeetingCount(response.data.total_meetings); // Store the total number of meetings
     } catch (error) {
       console.error("Error fetching total time:", error);
       setTotalTime("0");
+      setMeetingCount(0); // Set to 0 if there's an error
     }
   };
 
@@ -139,9 +142,12 @@ function MeetingCalendarView() {
       return meeting.date === formattedDate;
     });
 
- const getBadgeStatus = (status: number | boolean | null) => 
-  (status === true || status === 1) ? "success" : 
-  (status === false || status === 0) ? "error" : "warning";
+    const getBadgeStatus = (status: number | boolean | null) =>
+      status === true || status === 1
+        ? "success"
+        : status === false || status === 0
+          ? "error"
+          : "warning";
 
     return (
       <ul className="events">
@@ -192,7 +198,7 @@ function MeetingCalendarView() {
                     />
                     <Alert
                       className="no-border-radius mt-2"
-                      message={`Total Month Meeting Time: ${selectedValue.format("MMMM YYYY")} / ${totalTime} Hrs`}
+                      message={`Total Number of Meetings: ${meetingCount} | Total Time: ${totalTime} Hrs in ${selectedValue.format("MMMM YYYY")}`}
                       type="info"
                     />
                     <Calendar
