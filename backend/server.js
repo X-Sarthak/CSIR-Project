@@ -4938,7 +4938,7 @@ app.get('/meeting/total-time/calendar', (req, res) => {
       JOIN Meetings ON MeetingSchedule.meeting_id = Meetings.meeting_id
       WHERE Meetings.meeting_username = ?
         AND YEAR(MeetingSchedule.meeting_date) = ?
-        AND MONTH(MeetingSchedule.meeting_date) = ?;
+        AND MONTH(MeetingSchedule.meeting_date) = ? AND request_status = 1;
     `;
 
     // Execute the query with the provided meeting username, year, and month
