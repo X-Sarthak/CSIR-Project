@@ -287,6 +287,7 @@ function ShowRequest() {
                       <th className="px-4 py-2 text-center">Added By</th>
                       <th className="px-4 py-2 text-center">Status</th>
                       <th className="px-4 py-2 text-center">Action</th>
+                      <th className="px-4 py-2 text-center">Reason For Rejection</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -399,6 +400,13 @@ function ShowRequest() {
                               >
                                 Reject
                               </button>
+                            )}
+                          </td>
+                          <td className="px-4 py-2 text-center text-red-600">
+                          {schedule.reason_for_rejection ? (
+                              schedule.reason_for_rejection
+                            ) : (
+                              <span className="text-black">N/A</span>
                             )}
                           </td>
                         </tr>

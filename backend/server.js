@@ -25,7 +25,7 @@ app.use(
     saveUninitialized: true,
     cookie: {
       secure: false,
-      maxAge: 5000000, // The maximum age 30 Seconds 30,000
+      maxAge: 86400000, // 1 day in milliseconds
     },
   }) 
 );
@@ -4365,21 +4365,29 @@ app.put("/meeting/update-schedule", (req, res) => {
     // Sort and concatenate selected days into a single string separated by commas
     const sortedMeetingDays = sortDays(selectedDays).join(",");
 
-    // Prepare the update query
-    const query = "UPDATE Meetings SET meeting_days = ?, start_time = ?, end_time = ? WHERE meeting_id = ?";
+    // Prepare the update query for meeting schedule
+    const updateQuery = `
+      UPDATE Meetings 
+      SET meeting_days = ?, start_time = ?, end_time = ? 
+      WHERE meeting_id = ?
+    `;
 
-    // Execute the delete query to remove previous requests
-    const deleteQuery = "DELETE FROM MeetingSchedule WHERE meeting_id = ?";
+    // Prepare the query to reject previous requests with the reason "Time Changed"
+    const rejectRequestsQuery = `
+      UPDATE MeetingSchedule 
+      SET request_status = 0, reason_for_rejection = 'Schedule Changed' 
+      WHERE meeting_id = ? AND (request_status = 1 OR request_status IS NULL OR request_status = 0)
+    `;
 
-    connection.query(deleteQuery, [meetingId], (error) => {
+    connection.query(rejectRequestsQuery, [meetingId], (error) => {
       if (error) {
-        console.error("Error deleting previous meeting requests:", error);
+        console.error("Error rejecting previous requests:", error);
         return res.status(500).json({ error: "Internal server error" });
       }
 
-      // Execute the update query
+      // Update the meeting schedule
       connection.query(
-        query,
+        updateQuery,
         [sortedMeetingDays, formattedStartTime, formattedEndTime, meetingId],
         (error, results) => {
           if (error) {
@@ -4389,12 +4397,11 @@ app.put("/meeting/update-schedule", (req, res) => {
 
           // Check if any rows were affected by the update query
           if (results.affectedRows === 0) {
-            // If no rows were affected, it means the meeting schedule for the provided meeting ID does not exist
             return res.status(404).json({ error: "Meeting schedule not found" });
           }
 
           // Success response
-          return res.status(200).json({ message: "Meeting schedule updated successfully" });
+          return res.status(200).json({ message: "Meeting schedule updated and previous requests rejected due to time change." });
         }
       );
     });
@@ -4723,6 +4730,7 @@ app.get("/meeting/details/schedule", (req, res) => {
           MeetingSchedule.request_status,
           Meetings.room_name,
           MeetingSchedule.meeting_link,
+          MeetingSchedule.reason_for_rejection,
           MeetingSchedule.added_by,
           DATE_FORMAT(MeetingSchedule.Meeting_date, '%M %d, %Y') AS formatted_meeting_date,
           DATE_FORMAT(MeetingSchedule.start_time, '%H:%i') AS formatted_start_time,
