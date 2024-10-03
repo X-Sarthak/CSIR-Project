@@ -3942,7 +3942,7 @@ app.put("/user/booking/cancel/:schedule_id", (req, res) => {
       // Update the MeetingSchedule table to set request_status to 0 and reason_for_rejection
       const updateQuery = `
         UPDATE MeetingSchedule
-        SET request_status = 0, reason_for_rejection = 'Cancelled by user'
+        SET request_status = 0, reason_for_rejection = 'Cancelled By User'
         WHERE schedule_id = ? AND user_id = ?
       `;
 
