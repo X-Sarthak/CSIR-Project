@@ -4,7 +4,7 @@ import UserHeader from "./Header.User";
 import UserSidebar from "./SideBar.User";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { FaTimes } from "react-icons/fa";
+import { FaBan, FaTimes } from "react-icons/fa";
 
 axios.defaults.withCredentials = true;
 
@@ -229,15 +229,26 @@ function MeetingDisplay() {
                               <span className="text-black">N/A</span>
                             )}
                           </td>
+
                           <td className="px-4 py-2 text-center">
-                            <button
-                              onClick={() =>
-                                handleCancelRequest(request.schedule_id)
-                              }
-                              className=" hover:text-red-700 p-1 border border-red-600 rounded-xl"
-                            >
-                              <FaTimes />
-                            </button>
+                            {request.reason_for_rejection !==
+                              "Schedule Changed" &&
+                            request.reason_for_rejection !==
+                              "Cancelled By User" ? (
+                              <button
+                                onClick={() =>
+                                  handleCancelRequest(request.schedule_id)
+                                }
+                                className="hover:text-red-700 p-1 border border-red-600 rounded-xl"
+                              >
+                                <FaTimes className="text-red-600" />
+                              </button>
+                            ) : (
+                              <div className="inline-flex items-center">
+                                <FaBan className="text-gray-400" />
+                                {/* <span className="text-gray-400 ml-2">Disabled</span> */}
+                              </div>
+                            )}
                           </td>
                         </tr>
                       ))
