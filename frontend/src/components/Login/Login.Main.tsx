@@ -122,26 +122,32 @@ const Login: React.FC = () => {
     >
       <div className="bg-white p-4 w-full mb-40 -mt-40">
         <div className="flex items-center justify-between">
-          <div className="h-16 w-auto">
-            <a
-              href="https://www.csir.res.in/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                src={icons.CSIRlogo}
-                alt="CSIR Logo"
-                className="h-28 w-auto -mt-6"
-              />
-            </a>
+          {/* CSIR Logo and Text */}
+          <div className="flex items-center space-x-2 ml-48">
+            {" "}
+            {/* Adjust space between logo and text */}
+            <div className="h-16 w-auto">
+              <a
+                href="https://www.csir.res.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src={icons.CSIRlogo}
+                  alt="CSIR Logo"
+                  className="h-28 w-auto -mt-6"
+                />
+              </a>
+            </div>
+            <div className="text-sm font-serif font-bold text-center">
+              <p>वैज्ञानिक तथा औद्योगिक अनुसंधान परिषद्</p>
+              <p>Council of Scientific &amp; Industrial Research</p>
+              <p>(विज्ञान एवं प्रौद्योगिकी मंत्रालय, भारत सरकार)</p>
+              <p>Ministry of Science &amp; Technology, Govt. of India</p>
+            </div>
           </div>
-          <div className="text-sm font-serif font-bold text-center flex-1">
-            <p>वैज्ञानिक तथा औद्योगिक अनुसंधान परिषद्</p>
-            <p>Council of Scientific &amp; Industrial Research</p>
-            <p>(विज्ञान एवं प्रौद्योगिकी मंत्रालय, भारत सरकार)</p>
-            <p>Ministry of Science &amp; Technology, Govt. of India</p>
-          </div>
-          <div className="flex items-center space-x-2">
+
+          <div className="flex items-center space-x-2 mr-48">
             <a
               href="https://www.csir.res.in/csir-one-week-one-lab-program"
               target="_blank"
@@ -201,7 +207,8 @@ const Login: React.FC = () => {
         className={`bg-white p-4 mb-8 rounded-lg text-center ${
           activePanel ? "hidden" : ""
         }`}
-        style={{ width: "48%" }}
+        style={{ width: "48%", maxWidth: "910px" }}
+
       >
         <h1 className="text-2xl font-serif">Conference Room Booking</h1>
       </div>
