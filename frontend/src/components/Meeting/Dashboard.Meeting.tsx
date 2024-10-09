@@ -31,10 +31,14 @@ function MeetingDashboard() {
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [showURLInput, setShowURLInput] = useState(false);
   const [url, setURL] = useState("");
+  const [lastRequestCount, setLastRequestCount] = useState<number>(0); // Keep track of the last request count
+
 
 
   const navigate = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
+  const notification = new Audio("/notification.mp3");
+
 
   useEffect(() => {
     const checkSession = async () => {
@@ -70,15 +74,33 @@ function MeetingDashboard() {
     checkSession();
   }, [navigate]);
 
+
+
+  useEffect(() => {
+    const pollingInterval = setInterval(() => {
+      fetchRequestCount();
+    }, 10000); // Poll every 10 seconds
+  
+    // Clear interval on component unmount
+    return () => clearInterval(pollingInterval);
+  }, [lastRequestCount]);
+  
+
   const fetchRequestCount = async () => {
     try {
-      const response = await axios.get<{
-        request_count: number;
-      }>("/meeting/schedule/count");
+      const response = await axios.get<{ request_count: number }>("/meeting/schedule/count");
       const requestCount = response.data.request_count;
-      toast.info(
-        `You have ${requestCount} pending request for approval meeting schedule`
-      );
+
+      // Trigger notification sound if the request count has increased
+      if (requestCount > lastRequestCount) {
+        notification.play();
+      }
+
+      // Update the last request count
+      setLastRequestCount(requestCount);
+
+      // Display toast notification
+      toast.info(`You have ${requestCount} pending requests for meeting schedule approval.`);
     } catch (error: any) {
       console.error("Error fetching request count:", error);
     }
