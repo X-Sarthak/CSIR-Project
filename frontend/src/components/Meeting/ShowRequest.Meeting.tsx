@@ -276,9 +276,9 @@ function ShowRequest() {
                 <table className="w-full mt-2 rounded-b-xl bg-white">
                   <thead className="bg-gray-200 font-serif">
                     <tr>
-                      <th className="px-4 py-2 text-center">User Email</th>
+                      <th className="px-4 py-2 text-center">User-Email</th>
                       <th className="px-4 py-2 text-center">Meeting Title</th>
-                      <th className="px-4 py-2 text-center">Room Name</th>
+                      <th className="px-4 py-2 text-center">Employs Name</th>
                       <th className="px-4 py-2 text-center">Meeting Date</th>
                       <th className="px-4 py-2 text-center">Start Time</th>
                       <th className="px-4 py-2 text-center">End Time</th>
@@ -311,7 +311,7 @@ function ShowRequest() {
                             {schedule.meeting_title}
                           </td>
                           <td className="px-4 py-2 text-center">
-                            {schedule.room_name}
+                            {schedule.user_name}
                           </td>
                           <td className="px-4 py-2 text-center">
                             {schedule.formatted_meeting_date}

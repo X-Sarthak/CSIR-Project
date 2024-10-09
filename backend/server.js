@@ -4728,7 +4728,7 @@ app.get("/meeting/details/schedule", (req, res) => {
           MeetingSchedule.meeting_title,
           MeetingSchedule.meeting_option,
           MeetingSchedule.request_status,
-          Meetings.room_name,
+          Users.user_name,
           MeetingSchedule.meeting_link,
           MeetingSchedule.reason_for_rejection,
           MeetingSchedule.added_by,
