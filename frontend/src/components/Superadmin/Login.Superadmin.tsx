@@ -45,36 +45,20 @@ const SuperadminLogin: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
-    setLoading(true); // Set loading to true when login request starts
-
-    // Check for spaces in the input
-    if (superadminUsername.includes(" ") || superadminPassword.includes(" ")) {
-      setError("Spaces are not allowed in the input fields.");
-      setLoading(false); 
-      return;
-    }
-
+    setLoading(true);
+  
     try {
-      const response = await axios.post<{ message: string; token: string }>(
-        "/superadmin",
-        {
-          superadmin_username: superadminUsername,
-          superadmin_password: superadminPassword,
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-          }
-        }
-      );
+      const response = await axios.post("/superadmin", {
+        superadmin_username: superadminUsername,
+        superadmin_password: superadminPassword,
+      });
+  
       if (response.status === 200) {
-        // Store token securely in session storage
+        // Store token in session storage
         sessionStorage.setItem("token", response.data.token);
-        sessionStorage.setItem("superadmin_username", superadminUsername); // Set expiration time for 1 day
-
+        sessionStorage.setItem("superadmin_username", superadminUsername);
         navigate("/superadmin/login/dashboard");
       }
-     
     } catch (error: any) {
       console.error("Login failed:", error.message);
       setError("Login failed. Please try again.");
@@ -82,6 +66,7 @@ const SuperadminLogin: React.FC = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="bg-gray-100 h-screen flex items-center justify-center p-4 relative">

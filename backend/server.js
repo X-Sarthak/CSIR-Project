@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: "https://nsfd5fr1-5173.inc1.devtunnels.ms", // Replace this with the origin of your frontend application
+    origin: " http://localhost:5173", // Replace this with the origin of your frontend application
     credentials: true, // Allow credentials (cookies)
   })
 );
@@ -82,42 +82,39 @@ connection.connect((err) => {
 app.post("/superadmin", (req, res) => {
   const { superadmin_username, superadmin_password } = req.body;
 
-  // Query the database to fetch the hashed password of the provided superadmin_username
   connection.query(
     "SELECT Superadmin_password FROM Superadmin WHERE superadmin_username = ?",
     [superadmin_username],
     (error, results) => {
       if (error) {
         console.error("Error querying the database:", error);
-        return res.sendStatus(500); // Internal server error
+        return res.status(500).json({ message: "Internal server error" });
       }
 
       if (results.length === 1) {
         const hashedPassword = results[0].Superadmin_password;
 
-        // Compare the provided password with the stored hashed password using bcrypt
         bcrypt.compare(superadmin_password, hashedPassword, (err, isMatch) => {
           if (err) {
             console.error("Error comparing passwords:", err);
-            return res.sendStatus(500); // Internal server error
+            return res.status(500).json({ message: "Error comparing passwords" });
           }
 
           if (isMatch) {
-            // Generate a session token
-            const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
+            const secretKey = process.env.SECRET_KEY; // Store in env
             const token = jwt.sign(
               { username: superadmin_username },
-              secretKey
+              secretKey,
+              { expiresIn: "1m" } // Token expires in 1 hour
             );
-            // Store the token in the session
             req.session.token = token;
-            return res.status(200).json({ message: "Successful login", token }); // Send success response with token
+            return res.status(200).json({ message: "Login successful", token });
           } else {
-            return res.sendStatus(401); // Unauthorized
+            return res.status(401).json({ message: "Invalid username or password" });
           }
         });
       } else {
-        return res.sendStatus(401); // Unauthorized
+        return res.status(401).json({ message: "Invalid username or password" });
       }
     }
   );
@@ -125,25 +122,33 @@ app.post("/superadmin", (req, res) => {
 
 // Endpoint to validate token for superadmin
 app.post("/superadmin/validateToken", (req, res) => {
-  const { token } = req.body;
+  const token = req.body.token || req.headers.authorization?.split(' ')[1];
 
-  // Verify the token
-  jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-    if (err) {
-      // Token is invalid
-      console.error("Invalid token:", err);
-      // res.redirect('/login');
-      return res.status(401).json({ valid: false });
-    } else {
-      // Token is valid
-      console.log("Valid token for:", decoded.username);
-      return res.status(200).json({ valid: true });
+  if (!token) {
+    return res.status(401).json({ message: "Access denied. No token provided." });
+  }
+
+  try {
+    const secretKey = process.env.SECRET_KEY;
+    const decoded = jwt.verify(token, secretKey); // Verify token
+    return res.status(200).json({ valid: true });
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ valid: false, message: "Token has expired" });
     }
-  });
+    return res.status(401).json({ valid: false, message: "Invalid token" });
+  }
 });
 
 //Create Admin Data
 app.post("/admin", (req, res) => {
+
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Access denied. No token provided." });
+  }
+
   const { adminUsername, adminPassword } = req.body;
 
   // Check if adminUsername or adminPassword is empty
@@ -161,14 +166,7 @@ app.post("/admin", (req, res) => {
       return res.sendStatus(500); // Internal server error
     }
 
-    // Retrieve the token from session
-    const token = req.session.token;
-
-    // Check if token is provided
-    if (!token) {
-      return res.status(401).json({ error: "Access denied. No token provided." });
-    }
-
+  
     try {
       // Verify the token
       const secretKey = process.env.SECRET_KEY; // Access secret key from environment variables
@@ -216,40 +214,42 @@ app.post("/admin", (req, res) => {
 
 // Endpoint to fetch admin data
 app.get("/admins", (req, res) => {
-  // Retrieve the token from the session
-  // const token = req.session.token;
-  const token = req.headers.Authorization || req.session.token;
+  const token = req.headers.authorization?.split(' ')[1];
 
-  // Check if token exists
   if (!token) {
-    return res.status(401).json({ error: "Access denied. No token provided." });
+    return res.status(401).json({ message: "Access denied. No token provided." });
   }
 
   try {
-    // Decode the token to get the superadmin_username
     const secretKey = process.env.SECRET_KEY;
-    const decoded = jwt.verify(token, secretKey);
+    const decoded = jwt.verify(token, secretKey); // Verify the token
     const superadminUsername = decoded.username;
 
-    // Query the database to retrieve admin data for the specific superadmin
-    connection.query("SELECT * FROM Admins WHERE Superadmin_username = ?", [superadminUsername], (error, results) => {
-      if (error) {
-        console.error("Error fetching admin data:", error);
-        return res.sendStatus(500); // Internal server error
-      }
+    // Fetch data for the super admin
+    connection.query(
+      "SELECT * FROM Admins WHERE Superadmin_username = ?",
+      [superadminUsername],
+      (error, results) => {
+        if (error) {
+          console.error("Error fetching admin data:", error);
+          return res.status(500).json({ message: "Internal server error" });
+        }
 
-      // Admin data retrieved successfully
-      return res.status(200).json(results);
-    });
+        return res.status(200).json(results);
+      }
+    );
   } catch (error) {
-    // Handle invalid token
-    console.error("Error verifying token:", error);
-    return res.status(401).json({ error: "Invalid token" });
+    return res.status(401).json({ message: "Invalid token" });
   }
 });
 
 // Endpoint to delete admin data by ID
 app.delete("/admin/:adminId", (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Access denied. No token provided." });
+  }
   const adminId = req.params.adminId; // Extract admin ID from URL parameters
 
   // Fetch admin username corresponding to the admin ID
@@ -362,7 +362,7 @@ async function deleteUsers(adminUsername) {
 async function deleteMeetingSchedule(adminUsername) {
   return new Promise((resolve, reject) => {
     connection.query(
-      "DELETE FROM MeetingSchedule WHERE meeting_username IN (SELECT meeting_username FROM Meetings WHERE admin_username = ?)",
+      "DELETE FROM MeetingSchedule WHERE meeting_id IN (SELECT meeting_id FROM Meetings WHERE admin_username = ?)",
       [adminUsername],
       (error, results) => {
         if (error) {

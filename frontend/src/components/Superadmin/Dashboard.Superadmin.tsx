@@ -25,70 +25,64 @@ function SuperAdminDashboard() {
   const [selectedAdminId, setSelectedAdminId] = useState(""); // State to keep track of the admin being edited
   const [loading, setLoading] = useState(false);
 
-  const navigator = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
       try {
+        setLoading(true); // Start loading
         const token = sessionStorage.getItem("token");
-        const superadminUsername =
-          sessionStorage.getItem("superadmin_username") ?? "";
-        setLoading(true);
   
-        if (!token || !superadminUsername) {
-          navigator("/superadmin/login"); // Redirect to login page
-          return;
-        }
+        if (token) {
+          const response = await axios.post("/superadmin/validateToken", { token });
   
-        const response = await axios.post<{ valid: boolean, message?: string }>(
-          "/superadmin/validateToken",
-          { token }
-        );
-  
-        if (response.data.valid) {
-          setValidSession(true);
-          fetchAdmins(); // Fetch admin data once the session is valid
-        } else {
-          if (response.data.message === "Token has expired") {
-            // Handle token expiration specifically
-            console.error("Token expired. Clearing session and redirecting to login.");
+          if (response.data.valid) {
+            setValidSession(true); // Set valid session if token is valid
+            fetchAdmins(); // Fetch admins after session is validated
           } else {
-            // Handle other reasons for invalid tokens
-            console.error("Invalid token:", response.data.message);
+            throw new Error("Token validation failed");
           }
-          // Clear session data and redirect to login page
-          sessionStorage.removeItem("token");
-          sessionStorage.removeItem("superadmin_username");
-          navigator("/superadmin/login"); // Redirect to login page
+        } else {
+          throw new Error("No token found, redirecting to login");
         }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error("Error validating session:", error);
-        // Clear session data and redirect to login page
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("superadmin_username");
-        navigator("/superadmin/login"); // Redirect to login page
-        setLoading(false);
+      } catch (error: unknown) { // Add type assertion here
+        console.error("Error validating token:", error);
+  
+        // Check if error is an AxiosError
+        if (axios.isAxiosError(error) && error.response) {
+          alert(error.response.data?.message || "An unexpected error occurred. Please try again.");
+        } else if (error instanceof Error) {
+          alert(error.message); // Display general error message if available
+        } else {
+          alert("An unexpected error occurred. Please try again.");
+        }
+  
+        sessionStorage.clear();
+        navigate("/superadmin/login");
+      } finally {
+        setLoading(false); // Stop loading
       }
     };
   
     checkSession();
-  }, [navigator]);
+  }, [navigate]);
   
 
   const fetchAdmins = async () => {
     try {
+      setLoading(true); // Start loading
       const response = await axios.get("/admins", {
         headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-        }
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+        },
       });
       const reversedSchedule = response.data.reverse();
       setAdmins(reversedSchedule);
     } catch (error) {
       console.error("Error fetching admins:", error);
       // Handle error
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -155,13 +149,10 @@ function SuperAdminDashboard() {
         { adminPassword: newPassword }
       );
       if (response.status === 200) {
-        // Password updated successfully
         console.log("Admin password updated successfully");
-        // Optionally, you may want to refetch the admin data here
         closeEditPasswordForm();
       } else {
         console.error("Failed to update admin password");
-        // Handle other status codes if needed
       }
     } catch (error) {
       console.error("Error updating password:", error);
@@ -171,7 +162,7 @@ function SuperAdminDashboard() {
 
   return (
     <>
-    {loading && <Spinner />}
+      {loading && <Spinner />} {/* Show spinner during loading */}
       {validSession && (
         <div>
           <SuperAdminHeader dashboardType="Super Admin" />
@@ -186,7 +177,7 @@ function SuperAdminDashboard() {
                   Super Administrator Dashboard
                 </h1>
               </div>
-              <CreateAdminForm onCreateAdmin={() => fetchAdmins()} />
+              <CreateAdminForm onCreateAdmin={fetchAdmins} />
               <table className="w-full overflow-hidden mt-2">
                 <thead className="bg-gray-200 font-serif">
                   <tr>
